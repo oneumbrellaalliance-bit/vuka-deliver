@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Vuka Deliver — Beta</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Outfit',sans-serif;background:#2a2520;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 8px 40px}
+
+.panel-bar{display:flex;background:#111;border-radius:50px;padding:5px;gap:4px;margin-bottom:14px}
+.pb{flex:1;padding:7px 12px;border-radius:44px;border:none;background:transparent;color:#666;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap}
+.pb.on{background:#D85A30;color:#fff}
+
+.phone{width:370px;max-width:100%;background:#0f0f0f;border-radius:40px;border:7px solid #111;overflow:hidden;height:720px;display:flex;flex-direction:column;position:relative;box-shadow:0 28px 70px rgba(0,0,0,.6)}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:82px;height:20px;background:#111;border-radius:0 0 12px 12px;z-index:99}
+.phone-body{margin-top:20px;flex:1;overflow:hidden;display:flex;flex-direction:column}
+.scr{flex:1;overflow-y:auto;display:flex;flex-direction:column;padding-bottom:62px}
+.scr::-webkit-scrollbar{display:none}
+.scr{scrollbar-width:none}
+
+/* BOTTOM NAV */
+.bnav{position:absolute;bottom:0;left:0;right:0;background:#111;border-top:0.5px solid #222;display:flex;z-index:50;padding:4px 0 6px}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px 2px;cursor:pointer;gap:2px}
+.bni-ic{font-size:18px;color:#444}
+.bni-lbl{font-size:9px;color:#444;font-weight:600}
+.bni.on .bni-ic{color:#fff}
+.bni.on .bni-lbl{color:#D85A30}
+
+/* TOP BAR */
+.topbar{background:#0f0f0f;padding:12px 14px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-left{display:flex;flex-direction:column}
+.deliver-lbl{font-size:10px;color:#555}
+.loc{font-size:14px;font-weight:600;color:#fff;display:flex;align-items:center;gap:4px}
+.search-row{padding:0 14px 12px;flex-shrink:0}
+.search-box{background:#1e1e1e;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.search-box span{font-size:12px;color:#444}
+
+/* BANNERS */
+.banners{margin:0 14px 16px;border-radius:12px;overflow:hidden;flex-shrink:0}
+.banner-wrap{display:flex;transition:transform .4s ease}
+.banner{flex-shrink:0;width:100%;height:118px;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;position:relative;overflow:hidden}
+.banner-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75),rgba(0,0,0,.05))}
+.banner h3{color:#fff;font-size:15px;font-weight:700;position:relative;z-index:2}
+.banner p{color:rgba(255,255,255,.72);font-size:10px;margin-top:2px;position:relative;z-index:2}
+.bdots{display:flex;justify-content:center;gap:5px;padding:8px 0 0}
+.bdot{width:5px;height:5px;border-radius:50%;background:#333;cursor:pointer;transition:all .2s}
+.bdot.on{background:#D85A30;width:16px;border-radius:3px}
+
+/* SECTIONS */
+.section{margin-bottom:18px}
+.sec-hdr{padding:4px 14px 9px;display:flex;justify-content:space-between;align-items:center}
+.sec-title{font-size:14px;font-weight:700;color:#fff}
+.sec-see{font-size:10px;color:#D85A30;font-weight:600}
+.hscroll{display:flex;gap:10px;padding:0 14px;overflow-x:auto;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+
+/* DISH CARDS */
+.dish-card{flex-shrink:0;width:148px;background:#1a1a1a;border-radius:10px;overflow:hidden;cursor:pointer;border:0.5px solid #2a2a2a}
+.dish-img{height:88px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;text-align:center;padding:6px;line-height:1.4;color:#aaa}
+.dish-body{padding:8px 9px 10px}
+.dish-name{font-size:11px;font-weight:600;color:#fff;line-height:1.3}
+.dish-rest{font-size:9px;color:#555;margin-top:2px}
+.dish-meta{display:flex;justify-content:space-between;margin-top:5px;font-size:10px}
+.dp{color:#D85A30;font-weight:600}
+.ds{color:#F59E0B}
+
+/* RESTAURANT CARDS */
+.rest-card{flex-shrink:0;width:195px;background:#1a1a1a;border-radius:10px;overflow:hidden;cursor:pointer;border:0.5px solid #2a2a2a}
+.rest-img{height:98px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;text-align:center;padding:8px;line-height:1.4;color:#aaa}
+.rest-body{padding:9px 10px 11px}
+.rest-name{font-size:12px;font-weight:700;color:#fff}
+.rest-df{font-size:9px;color:#666;margin-top:3px}
+.rest-row{display:flex;justify-content:space-between;margin-top:5px;font-size:9px}
+.rr-stars{color:#F59E0B;font-weight:600}
+.rr-dist{color:#555}
+.rr-fee{font-size:9px;color:#1b8a4e;font-weight:600;margin-top:3px}
+
+/* HDR */
+.hdr{background:#1a1a1a;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #222;flex-shrink:0}
+.hdr-title{color:#fff;font-size:14px;font-weight:700}
+.hdr-sub{color:#555;font-size:10px;margin-top:1px}
+.back{background:none;border:none;color:#D85A30;font-size:20px;cursor:pointer;padding:0 8px 0 0;font-family:'Outfit',sans-serif;line-height:1}
+
+/* MENU */
+.menu-banner{padding:14px;background:#1a1a1a;border-bottom:0.5px solid #222;flex-shrink:0}
+.menu-rname{font-size:16px;font-weight:700;color:#fff}
+.menu-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:#555;margin-top:4px}
+.menu-meta .g{color:#1b8a4e;font-weight:600}
+.msec{padding:9px 14px 3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#444}
+.mi{padding:11px 14px;border-bottom:0.5px solid #1a1a1a;display:flex;gap:10px;align-items:flex-start;background:#0f0f0f}
+.mi-info{flex:1}
+.mi-name{font-size:12px;font-weight:600;color:#fff}
+.mi-desc{font-size:10px;color:#444;margin-top:2px;line-height:1.4}
+.mi-price{font-size:12px;font-weight:700;color:#D85A30;margin-top:5px}
+.ctrl{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.qb{width:27px;height:27px;border-radius:50%;border:0.5px solid #2a2a2a;background:#1a1a1a;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-family:'Outfit',sans-serif}
+.qb.a{background:#D85A30;color:#fff;border-color:#D85A30}
+.qn{font-size:13px;font-weight:700;min-width:15px;text-align:center;color:#fff}
+.sticky-c{position:sticky;bottom:62px;padding:8px 14px;background:#0f0f0f;border-top:0.5px solid #1a1a1a}
+.cbtn{width:100%;background:#D85A30;color:#fff;border:none;border-radius:10px;padding:12px 14px;font-size:12px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;font-family:'Outfit',sans-serif}
+.cpill{background:rgba(0,0,0,.2);font-size:10px;padding:2px 8px;border-radius:10px}
+
+/* CART */
+.ci{padding:11px 14px;border-bottom:0.5px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center}
+.ci-name{font-size:12px;font-weight:600;color:#fff}
+.ci-sub{font-size:10px;color:#D85A30;font-weight:600;margin-top:2px}
+.sumbox{margin:10px 14px;background:#1a1a1a;border-radius:10px;padding:12px;border:0.5px solid #2a2a2a}
+.srow{display:flex;justify-content:space-between;font-size:11px;color:#555;padding:3px 0}
+.stot{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#fff;border-top:0.5px solid #2a2a2a;padding-top:8px;margin-top:5px}
+.saving{text-align:center;font-size:10px;color:#1b8a4e;font-weight:600;margin-top:8px;padding:5px;background:#021a0e;border-radius:6px}
+.paybox{margin:0 14px 8px;background:#1a1a1a;border-radius:10px;padding:12px;border:0.5px solid #2a2a2a}
+.pay-title{font-size:11px;font-weight:700;color:#fff;margin-bottom:8px}
+.popt{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:8px;border:0.5px solid #2a2a2a;margin-bottom:5px;cursor:pointer}
+.popt.on{border-color:#D85A30;background:#1f100a}
+.popt-lbl{font-size:11px;font-weight:600;color:#fff}
+.popt-sub{font-size:9px;color:#555}
+.place-btn{margin:0 14px 12px;background:#D85A30;color:#fff;border:none;border-radius:10px;padding:14px;font-size:13px;font-weight:700;cursor:pointer;width:calc(100% - 28px);font-family:'Outfit',sans-serif;display:flex;justify-content:space-between}
+
+/* ADDR */
+.addr-wrap{padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+.lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#555;margin-bottom:3px}
+.inp{width:100%;background:#1a1a1a;border:0.5px solid #2a2a2a;border-radius:8px;padding:9px 11px;font-size:12px;font-family:'Outfit',sans-serif;color:#fff;outline:none}
+.inp::placeholder{color:#333}
+select.inp{appearance:none}
+select.inp option{background:#1a1a1a}
+
+/* TRACKING */
+.trk{padding:16px 14px;overflow-y:auto;flex:1}
+.trk-center{text-align:center;margin-bottom:18px}
+.trk-ic{font-size:40px;margin-bottom:8px}
+.trk-title{font-size:18px;font-weight:800;color:#fff}
+.trk-sub{font-size:11px;color:#555;margin-top:3px}
+.trk-id{font-size:10px;color:#D85A30;font-weight:700;margin-top:5px}
+.eta-card{background:#1a1a1a;border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;border:0.5px solid #2a2a2a}
+.eta-lbl{font-size:9px;color:#555;font-weight:700;text-transform:uppercase}
+.eta-val{font-size:16px;font-weight:700;color:#D85A30;margin-top:2px}
+.steps{display:flex;flex-direction:column}
+.step{display:flex;gap:12px;align-items:flex-start;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;left:15px;top:30px;width:1.5px;height:26px;background:#222}
+.step:not(:last-child).done::after{background:#D85A30}
+.sdot{width:30px;height:30px;border-radius:50%;background:#1a1a1a;border:1.5px solid #2a2a2a;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:#333}
+.sdot.done{background:#D85A30;border-color:#D85A30;color:#fff}
+.sdot.cur{border-color:#D85A30;color:#D85A30}
+.sbody{padding-top:4px;padding-bottom:18px}
+.slbl{font-size:12px;font-weight:700;color:#333}
+.slbl.done,.slbl.cur{color:#fff}
+.snote{font-size:10px;color:#444;margin-top:1px}
+.odc{background:#1a1a1a;border-radius:10px;padding:12px;border:0.5px solid #2a2a2a;margin-top:14px}
+.odc-title{font-size:11px;font-weight:700;color:#fff;margin-bottom:8px}
+.odc-row{display:flex;justify-content:space-between;font-size:10px;padding:3px 0;border-bottom:0.5px solid #1e1e1e}
+.odc-row:last-child{border:none}
+.ok{color:#444}
+.ov{font-weight:600;color:#fff}
+.home-btn{width:100%;background:#1a1a1a;color:#fff;border:0.5px solid #2a2a2a;border-radius:10px;padding:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:12px}
+
+/* ORDERS */
+.oc{margin:0 14px 7px;background:#1a1a1a;border-radius:10px;padding:11px 12px;border:0.5px solid #2a2a2a}
+.oc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+.oc-num{font-size:12px;font-weight:700;color:#fff}
+.oc-meta{font-size:9px;color:#444;margin-top:1px}
+.badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
+.bp{background:#2d1a00;color:#F59E0B}
+.bc{background:#0f1a30;color:#60A5FA}
+.bpr{background:#0f1a30;color:#60A5FA}
+.br{background:#1a0a2e;color:#C084FC}
+.bt{background:#1a0a2e;color:#C084FC}
+.bd{background:#031a0a;color:#4ADE80}
+.oc-items{font-size:10px;color:#444;margin-bottom:7px;line-height:1.5}
+.oc-total{font-size:12px;font-weight:700;color:#D85A30}
+.reb{background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;color:#fff;font-family:'Outfit',sans-serif}
+
+/* MERCHANT */
+.mhdr{background:#1a1a1a;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #222;flex-shrink:0}
+.mhdr-title{color:#fff;font-size:14px;font-weight:700}
+.mhdr-sub{color:#555;font-size:10px;margin-top:1px}
+.tog-wrap{display:flex;align-items:center;gap:7px}
+.tog{width:40px;height:22px;border-radius:11px;background:#333;position:relative;cursor:pointer}
+.tog.on{background:#1b8a4e}
+.tog-k{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
+.tog.on .tog-k{left:21px}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px 12px}
+.sc{background:#1a1a1a;border-radius:8px;padding:9px;text-align:center;border:0.5px solid #2a2a2a}
+.sv{font-size:16px;font-weight:700;color:#fff}
+.sl{font-size:9px;color:#444;margin-top:2px}
+.mtabs{display:flex;gap:5px;padding:7px 12px 0}
+.mt{padding:6px 14px;border-radius:20px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
+.mt.on{background:#D85A30;color:#fff}
+.mt.off{background:#1a1a1a;color:#555}
+.adv{background:#1e1e1e;color:#fff;border:0.5px solid #2a2a2a;border-radius:7px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
+
+/* ADMIN */
+.adm{background:#07070e;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.adm-hdr{background:#0d0d18;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid #181828;flex-shrink:0}
+.adm-title{color:#fff;font-size:14px;font-weight:700}
+.adm-sub{color:#333;font-size:10px;margin-top:1px}
+.pip{width:7px;height:7px;border-radius:50%;background:#D85A30;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.astats{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 12px;flex-shrink:0}
+.astat{border-radius:10px;padding:10px 11px;border:0.5px solid}
+.astat-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.astat-val{font-size:20px;font-weight:800}
+.astat-d{font-size:9px;margin-top:2px;color:#1b8a4e}
+.atabs{display:flex;gap:4px;padding:7px 12px 0;flex-shrink:0}
+.atab{padding:5px 11px;border-radius:20px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
+.atab.on{background:#D85A30;color:#fff}
+.atab.off{background:#181828;color:#333}
+.alist{flex:1;overflow-y:auto;padding:7px 12px 16px;scrollbar-width:none}
+.alist::-webkit-scrollbar{display:none}
+.acard{background:#0d0d18;border:0.5px solid #181828;border-radius:10px;padding:10px 11px;margin-bottom:6px}
+.acard-n{font-size:11px;font-weight:700;color:#fff}
+.acard-s{font-size:9px;color:#333;margin-top:2px}
+.acard-t{font-size:12px;font-weight:700;color:#D85A30;margin-top:5px}
+.rav{width:32px;height:32px;border-radius:50%;background:#181828;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#333}
+
+/* MORE / PRIME */
+.prime-banner{margin:12px 14px;background:#1a1a1a;border-radius:12px;padding:14px;border:0.5px solid #D85A3033}
+.prime-title{font-size:14px;font-weight:700;color:#D85A30}
+.prime-sub{font-size:10px;color:#666;margin-top:3px;line-height:1.6}
+.prime-btn{margin-top:10px;background:#D85A30;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
+</style>
+</head>
+<body>
+
+<div class="panel-bar">
+  <button class="pb on" id="pb-c" onclick="swP('c')">📱 Customer app</button>
+  <button class="pb" id="pb-m" onclick="swP('m')">🍽️ Merchant</button>
+  <button class="pb" id="pb-a" onclick="swP('a')">⚡ Admin ops</button>
+</div>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="phone-body">
+    <div class="scr" id="scr"></div>
+    <nav class="bnav" id="bnav"></nav>
+  </div>
+</div>
+
+<script>
+const RESTS=[
+  {id:'karame',name:'Karame',cat:'Cafe & Grills',r:4.8,t:'20-35',col:'#1d4ed8',feat:'Loaded Fries & Rolexes',items:[{n:'Double Beef Burger',d:'Double patty beef burger',p:10000},{n:'Grilled Chicken Burger',d:'Juicy grilled chicken burger',p:9000},{n:'Meatlovers Loaded Fries',d:'Ultimate loaded fries',p:9000},{n:'Meatlovers Quesadilla',d:'Loaded quesadilla',p:9500},{n:'Karame Beef Rolex',d:'Signature beef rolex wrap',p:6000},{n:'Meatlovers Rolex',d:'Fully loaded rolex',p:8000},{n:'Spicy Curry Chicken',d:'Chicken curry with rice',p:9000},{n:'Grilled Chicken Breast',d:'Marinated grilled breast',p:10000}]},
+  {id:'now-now',name:'Now Now Rolex',cat:'Rolex & Cafe',r:4.9,t:'20-35',col:'#6d28d9',feat:'Creative Rolexes & Coffee',items:[{n:'The Korean Rolex',d:'Korean-style rolex wrap',p:8000},{n:'BBQ Chicken Rolex',d:'BBQ chicken rolex wrap',p:7500},{n:'Nachos Fajita Chicken',d:'Nachos with fajita chicken',p:10000},{n:'Chilli Beef Cheese Fries',d:'Loaded chilli fries',p:8000},{n:'The Rwandan Beef Rolex',d:'Classic Rwandan beef rolex',p:4500},{n:'Passion Whisky Sour',d:'Fresh passion cocktail',p:10000},{n:'Cold Brew Coffee',d:'Cold brew Rwandan coffee',p:4000},{n:'African Tea',d:'Spiced Rwandan tea',p:5000}]},
+  {id:'inganzo',name:'Inganzo',cat:'Fine Dining',r:4.9,t:'30-50',col:'#312e81',feat:'Steaks & Fine Dining',items:[{n:'Grilled T-Bone Steak',d:'Garlic, lemon and rosemary',p:16000},{n:'Succulent Beef Steak',d:'Garlic and black pepper',p:14000},{n:'Chicken Cordon Bleu',d:'Stuffed with ham and cheese',p:15000},{n:'Hearty Breakfast',d:'Full breakfast with muffin',p:12000},{n:'Garlic Butter Shrimp',d:'With white wine sauce',p:12000},{n:'Sweet Pork Ribs',d:'Sweet-glazed pork ribs',p:13000},{n:'Beef Stroganoff',d:'Rich mushroom cream sauce',p:13000},{n:'Smoked Salmon Salad',d:'Premium smoked salmon',p:15000}]},
+  {id:'japanda',name:'Japanda',cat:'Japanese',r:4.8,t:'30-50',col:'#075985',feat:'Ramen & Donburi',items:[{n:'Makunouchi Plate',d:'Teriyaki chicken, perch, salad, rice & soup',p:7500},{n:'Miso Ramen',d:'Rich miso ramen soup',p:6000},{n:'Tonkotsu Shoyu Ramen',d:'Pork broth soy sauce',p:6000},{n:'Karaage Chicken Don',d:'Fried chicken rice bowl',p:5200},{n:'Pork Katsu Don',d:'Pork cutlet rice bowl',p:5200},{n:'Crispy Fried Prawns',d:'Deep fried with tartar',p:7500},{n:'Yakitori Chicken Thigh',d:'Grilled skewer, salt or sauce',p:2000},{n:'Sake Glass (140ml)',d:'Japanese sake, Takashimizu',p:5000}]},
+  {id:'casamia',name:'Casamia Late Night',cat:'Italian',r:4.8,t:'35-55',col:'#1e3a5f',feat:'Handmade Pasta & Pizza',items:[{n:'Frutti di Mare Pizza',d:'Mixed seafood pizza',p:21000},{n:'Quattro Stagioni',d:'Four seasons pizza',p:18900},{n:'Spaghetti Carbonara',d:'Classic carbonara',p:15500},{n:'Lasagna Classica',d:'Baked lasagna',p:16500},{n:'Margarita Pizza',d:'Classic Italian margarita',p:11500},{n:'Beef Brochette',d:'Grilled beef brochette',p:17200},{n:'Chicken Stroganoff',d:'Creamy stroganoff',p:19500},{n:'Seafood Risotto',d:'Risotto ai frutti di mare',p:19500}]},
+  {id:'kings',name:'Kings Fresh Shawarma',cat:'Shawarma',r:4.7,t:'20-40',col:'#92400e',feat:'Shawarma & Burgers',items:[{n:'Chicken Shawarma',d:'Grilled chicken wrap',p:7000},{n:'Beef Shawarma',d:'Beef shawarma wrap',p:7500},{n:'King Mixed Shawarma',d:'Mixed chicken and beef',p:8000},{n:'The Ultimate Burger',d:'Kings signature burger',p:8500},{n:'Double Burger',d:'Double patty burger',p:7500},{n:'Steak Bacon Cheese Taco',d:'Premium loaded taco',p:10000},{n:'Vanilla Milkshake',d:'Creamy vanilla shake',p:4000},{n:'Grilled Steak Taco',d:'Grilled beef steak taco',p:8500}]},
+  {id:'paka',name:'Paka',cat:'East African',r:4.7,t:'20-35',col:'#064e3b',feat:'Rolex, Pilau & Street Food',items:[{n:'Chicken Rolex',d:'Chicken rolex chapati wrap',p:4000},{n:'Beef Rolex',d:'Beef rolex chapati wrap',p:3500},{n:'Chips & Chicken',d:'Chips and fried chicken',p:6000},{n:'Pilao Chicken',d:'Pilao spiced chicken',p:6000},{n:'Kikomando',d:'Chapati with beans',p:3000},{n:'Passion Juice',d:'Fresh passion juice',p:3000},{n:'Chicken Burger with Fries',d:'Burger and fries',p:7000},{n:'Paka Platter',d:'Sharing platter for groups',p:30000}]},
+  {id:'pad-thai',name:'Pad Thai',cat:'Thai & Asian',r:4.7,t:'25-45',col:'#9a3412',feat:'Curries & Noodles',items:[{n:'Beef/Chicken Pad Thai',d:'Classic pad thai noodles',p:8300},{n:'Green Curry Chicken',d:'Thai green curry with rice',p:8500},{n:'Red Curry Chicken',d:'Thai red curry with rice',p:8500},{n:'Tom Yum Soup',d:'Spicy sour tom yum',p:8200},{n:'Basil Chicken Stir Fry',d:'Thai basil stir-fry',p:7500},{n:'Sweet and Sour Chicken',d:'Thai sweet and sour',p:8300},{n:'Papaya Salad',d:'Thai green papaya salad',p:6000},{n:'Chicken Cashew Nuts',d:'Cashew stir-fry',p:8300}]},
+  {id:'riders',name:'Riders Lounge',cat:'Restaurant',r:4.6,t:'30-50',col:'#581c87',feat:'Grills & Premium Mains',items:[{n:'Wet Fry Beef',d:'With choice of side',p:18000},{n:'Pork Chops',d:'Grilled with side',p:21000},{n:'Riders Special Burger',d:'Signature burger',p:17000},{n:'Club Sandwich',d:'Classic club sandwich',p:16000},{n:'Goat Brochettes (3pcs)',d:'Chargrilled brochettes',p:14000},{n:'Caesar Salad',d:'Classical caesar',p:12000},{n:'Pork Ribs',d:'BBQ pork ribs',p:18000},{n:'Avocado & Mango Salad',d:'Fresh salad',p:10000}]},
+  {id:'palm',name:'Palm Pizza Kitchen',cat:'Pizza',r:4.4,t:'25-45',col:'#991b1b',feat:'15+ Pizzas & Burgers',items:[{n:'Margarita (Medium)',d:'Tomato and mozzarella',p:9000},{n:'Pepperoni (Medium)',d:'Classic pepperoni',p:9000},{n:'BBQ Chicken (Medium)',d:'BBQ chicken pizza',p:9000},{n:'Chicken Supreme',d:'Chicken + free topping',p:11000},{n:'Beef Burger',d:'Classic beef burger',p:5500},{n:'Chicken Burger',d:'Crispy chicken burger',p:6000},{n:'Plain Chips',d:'Crispy plain fries',p:2000},{n:'Large Soda',d:'Coke, Sprite, Fanta',p:3000}]},
+  {id:'arnauld',name:'The Arnauld Pizza',cat:'Chicken & Pizza',r:4.4,t:'25-40',col:'#7f1d1d',feat:'Fried Chicken Combos',items:[{n:'1 Piece Chicken & Chips',d:'Single piece with chips',p:4000},{n:'3 Pieces + Soda',d:'3 pieces, chips, coleslaw, soda',p:10000},{n:'5 Pieces + Soda',d:'5 pieces, chips, soda',p:12500},{n:'9 Pieces Family Meal',d:'9 pieces, 2 chips, 2 sodas',p:21000},{n:'Kila Kitu Pizza',d:'Full toppings pizza',p:11500},{n:'Meat Lovers Pizza',d:'Loaded meat pizza',p:10000},{n:'Margarita Pizza',d:'Classic margarita',p:9000},{n:'Double Cheese Burger',d:'Double cheese with chips',p:8500}]},
+  {id:'sharons',name:'Sharons Zone',cat:'Burgers & Breakfast',r:4.5,t:'20-40',col:'#831843',feat:'Burgers, Shakes & Breakfast',items:[{n:'Chicken Burger',d:'Crispy chicken burger',p:6500},{n:'Beef Burger',d:'Classic beef burger',p:4800},{n:'Sharon Cheesy Fries',d:'Signature cheesy fries',p:3000},{n:'Chocolate Shake',d:'Chocolate milkshake',p:3000},{n:'Beef Pilau Rice',d:'Beef pilau with sides',p:8000},{n:'Home Style Chicken',d:'Home-style chicken',p:6500},{n:'Whole Chicken',d:'Whole fried chicken',p:18000},{n:'Chicken Crunchy Salad',d:'Crunchy salad',p:6000}]},
+  {id:'da-vinci',name:'Da Vinci House',cat:'Middle Eastern',r:4.5,t:'25-45',col:'#78350f',feat:'Shawarma + Free Extras',items:[{n:'Chicken Shawarma',d:'With energy drink and chips',p:8000},{n:'Beef Shawarma',d:'With energy drink and chips',p:8000},{n:'Beef Fajita',d:'With energy drink and chips',p:8000},{n:'Fattah Beef Shawarma',d:'Fattah-style with drink',p:10000},{n:'Whole Chicken',d:'With chips, drink, salad',p:22000},{n:'Beef Pilau',d:'With drink and chips',p:10000},{n:'Half Chicken',d:'Half chicken with chips',p:12000},{n:'Cheese Burger',d:'With drink and chips',p:8000}]},
+  {id:'pilau',name:'Kigali Special Pilau',cat:'Fast Food',r:4.6,t:'20-40',col:'#365314',feat:'Pilau, Chicken & Burgers',items:[{n:'1 Piece Chicken & Chips',d:'Single piece and fries',p:7000},{n:'3 Piece Chicken & Chips',d:'Three pieces and fries',p:15000},{n:'Full Chicken with Chips',d:'Whole fried with fries',p:22000},{n:'Beef Pilau with Chips',d:'Pilau rice with chips',p:14000},{n:'Chicken BBQ Pizza',d:'BBQ chicken pizza',p:8000},{n:'Beef Burger',d:'Classic beef burger',p:5000},{n:'Meat Lovers Pizza',d:'Meat lovers medium',p:8000},{n:'Chicken Burger',d:'Crispy chicken burger',p:6000}]},
+  {id:'lolo',name:'Lolo Pits Meats',cat:'Butcher',r:4.5,t:'25-45',col:'#44403c',feat:'Fresh Cuts & Fish',items:[{n:'Chicken Breast',d:'Fresh raw chicken breast',p:6100},{n:'Chicken Leg with Thigh',d:'Fresh chicken leg and thigh',p:9600},{n:'Whole Chicken',d:'Dressed whole raw chicken',p:13500},{n:'Beef Ribs (Imbavu)',d:'Bone-in beef ribs',p:4100},{n:'Medium Tilapia',d:'Fresh medium tilapia',p:7100},{n:'Tilapia Fillet',d:'Boneless tilapia fillet',p:11300},{n:'Farmers Choice Frankfurter',d:'Premium pork frankfurters',p:12000},{n:'Beef Brisket',d:'Slow cooking cut',p:4100}]},
+  {id:'hot',name:'Hot Pot Pizzeria',cat:'Pizza & Hot Pot',r:4.5,t:'25-45',col:'#7f1d1d',feat:'Pizzas & Hot Pots',items:[{n:'Hotpot Special Pizza',d:'Signature hotpot pizza',p:14000},{n:'Hawaiian Pizza',d:'Ham and pineapple',p:12000},{n:'Whole Chicken Biryani',d:'Full biryani for sharing',p:25000},{n:'Chicken Spaghetti Hot Pot',d:'Chicken in hot pot',p:6500},{n:'BBQ Chicken Pizza',d:'BBQ chicken',p:11000},{n:'Pepperoni Pizza',d:'Classic pepperoni',p:12000},{n:'Chicken Shawarma Wrap',d:'Grilled shawarma',p:7000},{n:'Hot Chocolate',d:'Rich hot chocolate',p:3000}]},
+  {id:'sub',name:'Sub Point Restaurant',cat:'Pizza',r:4.3,t:'30-50',col:'#7f1d1d',feat:'Pizza in Every Style',items:[{n:'Margharita (Medium)',d:'Classic margharita',p:9000},{n:'Pepperoni (Medium)',d:'Pepperoni pizza',p:10000},{n:'Meat Deluxe (Large)',d:'Loaded meat pizza large',p:13000},{n:'Chicken BBQ (Medium)',d:'Chicken BBQ pizza',p:10500},{n:'Fully Loaded (Medium)',d:'All toppings',p:10500},{n:'Four Seasons (Medium)',d:'Four season pizza',p:10500},{n:'Chicken Tikka (Medium)',d:'Chicken tikka pizza',p:10500},{n:'Extra Cheese',d:'Add to any pizza',p:1000}]},
+  {id:'goodlife',name:'Goodlife Store',cat:'Grocery',r:4.3,t:'30-50',col:'#14532d',feat:'Groceries & Essentials',items:[{n:'Jambo Basmati Rice (5kg)',d:'Premium basmati rice',p:16500},{n:'Crystal Vegetable Oil (3L)',d:'Vegetable cooking oil',p:15800},{n:'Nescafe Classic (200g)',d:'Coffee jar',p:12600},{n:'Roasted Cashew Nuts',d:'House of Nuts cashews',p:9500},{n:'Inyange Whole Milk (1L)',d:'Fresh whole milk',p:1700},{n:'Dairyland Milk Chocolate',d:'Rwandan chocolate bar',p:3000},{n:'Winnaz Salted Chips',d:'Crunchy salted chips',p:2600},{n:'Apple Cider Vinegar',d:'946ml bottle',p:24000}]},
+];
+const BANNERS=[
+  {title:'No container charge. Ever.',sub:'Flat 1,000 RWF delivery · MTN MoMo & Airtel accepted',bg:'#D85A30',bg2:'#7a2c10'},
+  {title:'18 restaurants in Kigali',sub:'From Paka street food to Inganzo fine dining',bg:'#1d4ed8',bg2:'#0f2060'},
+  {title:'New: Japanda is live',sub:'Ramen, donburi, yakitori & sake now delivering',bg:'#075985',bg2:'#062240'},
+  {title:'Pay with MTN or Airtel',sub:'Mobile Money · Airtel Money · Cash on delivery',bg:'#065f46',bg2:'#022c20'},
+];
+const FEAT_DISHES=[
+  {n:'Meatlovers Loaded Fries',rest:'Karame',p:9000,rid:'karame',col:'#1d4ed8'},
+  {n:'Grilled T-Bone Steak',rest:'Inganzo',p:16000,rid:'inganzo',col:'#312e81'},
+  {n:'Miso Ramen',rest:'Japanda',p:6000,rid:'japanda',col:'#075985'},
+  {n:'BBQ Chicken Rolex',rest:'Now Now Rolex',p:7500,rid:'now-now',col:'#6d28d9'},
+  {n:'Chicken Shawarma',rest:'Kings Shawarma',p:7000,rid:'kings',col:'#92400e'},
+  {n:'Pad Thai Noodles',rest:'Pad Thai',p:8300,rid:'pad-thai',col:'#9a3412'},
+];
+const SECTIONS=[
+  {title:'Kigali Favourites',ids:['karame','now-now','paka','kings','pilau']},
+  {title:'Pause and Refuel',ids:['riders','da-vinci','lolo','goodlife','sharons']},
+  {title:'Late Night Cravings',ids:['casamia','hot','sub']},
+  {title:'Around the World',ids:['japanda','pad-thai','inganzo','palm','arnauld']},
+];
+const MORDERS=[
+  {id:'VK-2025-01047',cust:'Hilda M.',items:['T-Bone Steak x1','Stroganoff x1'],total:29000,status:'pending',time:'12:21 PM'},
+  {id:'VK-2025-01046',cust:'Eric T.',items:['Sweet Pork Ribs x1','Salmon Salad x1'],total:28000,status:'preparing',time:'12:08 PM'},
+  {id:'VK-2025-01045',cust:'Vanessa K.',items:['Beef Steak x2'],total:30000,status:'ready',time:'11:55 AM'},
+];
+const AORDERS=[
+  {id:'VK-2025-01044',cust:'Jean-Paul K.',items:['T-Bone Steak x1','Salmon x1'],total:31000,status:'preparing',addr:'KG 14 Ave, Kiyovu'},
+  {id:'VK-2025-01043',cust:'Amina N.',items:['Miso Ramen x2'],total:12000,status:'in_transit',addr:'KK 5 Rd, Remera'},
+  {id:'VK-2025-01042',cust:'David M.',items:['Chicken Shawarma x2'],total:14000,status:'confirmed',addr:'KN 3 St, Nyamirambo'},
+  {id:'VK-2025-01041',cust:'Clarisse U.',items:['BBQ Chicken Rolex x1'],total:7500,status:'delivered',addr:'KG 9 Ave, Kimihurura'},
+  {id:'VK-2025-01040',cust:'Patrick R.',items:['Wet Fry Beef x1','Ribs x1'],total:36000,status:'delivered',addr:'KN 7 Blvd, Gikondo'},
+];
+const RIDERS=[
+  {name:'Jean-Marie N.',id:'R-012',del:11,r:4.9,on:true},
+  {name:'Diane U.',id:'R-007',del:8,r:4.8,on:true},
+  {name:'Thierry M.',id:'R-024',del:14,r:4.7,on:true},
+  {name:'Solange K.',id:'R-031',del:4,r:4.9,on:false},
+  {name:'Eric B.',id:'R-019',del:10,r:4.6,on:true},
+  {name:'Rose N.',id:'R-005',del:9,r:4.8,on:true},
+];
+const PAST=[
+  {id:'VK-2025-01032',rest:'Inganzo',items:['T-Bone Steak x1','Shrimp x1'],total:29000,date:'Today'},
+  {id:'VK-2025-01021',rest:'Japanda',items:['Miso Ramen x2','Karaage x1'],total:16000,date:'Yesterday'},
+  {id:'VK-2025-01009',rest:'Karame',items:['Loaded Fries x1','Burger x1'],total:19000,date:'2 days ago'},
+];
+
+const S={panel:'c',tab:'home',rest:null,cart:[],pay:'mtn_momo',tstep:1,ttimer:null,mopen:true,mtab:'orders',atab:'overview',banner:0,btimer:null,morders:MORDERS.map(o=>({...o}))};
+const fmt=n=>(n||0).toLocaleString()+' RWF';
+const cc=()=>S.cart.reduce((s,i)=>s+i.qty,0);
+const ct=()=>S.cart.reduce((s,i)=>s+i.price*i.qty,0);
+
+function swP(p){S.panel=p;S.tab='home';S.rest=null;['c','m','a'].forEach(x=>document.getElementById('pb-'+x)?.classList.toggle('on',x===p));if(S.btimer)clearInterval(S.btimer);if(p==='c')startBT();render();}
+function startBT(){S.btimer=setInterval(()=>{S.banner=(S.banner+1)%BANNERS.length;updBanner();},3200);}
+function updBanner(){const t=document.getElementById('bwrap');if(t)t.style.transform=`translateX(-${S.banner*100}%)`;document.querySelectorAll('.bdot').forEach((d,i)=>d.classList.toggle('on',i===S.banner));}
+function setBanner(i){S.banner=i;updBanner();}
+function setTab(t){S.tab=t;S.rest=null;render();}
+function openRest(id){const r=RESTS.find(x=>x.id===id);if(r){S.rest=r;render();}}
+
+function renderBnav(){
+  if(S.panel!=='c'){document.getElementById('bnav').innerHTML='';return;}
+  const TABS=[{id:'home',ic:'☰',l:'Store Front'},{id:'prime',ic:'◈',l:'Prime'},{id:'orders',ic:'🛍',l:'Orders'},{id:'cart',ic:'🛒',l:'Cart'},{id:'more',ic:'⋮',l:'More'}];
+  document.getElementById('bnav').innerHTML=TABS.map(t=>`<div class="bni ${(S.tab===t.id&&!S.rest)||(t.id==='home'&&S.rest)?'on':''}" onclick="setTab('${t.id}')"><span class="bni-ic">${t.ic}</span><span class="bni-lbl">${t.l}</span></div>`).join('');
+}
+
+function render(){
+  renderBnav();
+  const el=document.getElementById('scr');if(!el)return;
+  if(S.panel==='c'){
+    if(S.rest){el.innerHTML=menuScr();return;}
+    const map={home:homeScr,cart:cartScr,orders:ordersScr,prime:primeScr,more:moreScr,addr:addrScr,track:trackScr};
+    el.innerHTML=(map[S.tab]||homeScr)();
+  } else if(S.panel==='m'){el.innerHTML=merchantScr();}
+  else{el.innerHTML=adminScr();}
+}
+
+function homeScr(){
+  const c=cc();
+  return `
+  <div class="topbar">
+    <div class="topbar-left"><div class="deliver-lbl">Deliver to:</div><div class="loc">Kigali, Rwanda ▾</div></div>
+    <span style="font-size:20px">🇷🇼</span>
+  </div>
+  <div class="search-row"><div class="search-box"><span style="font-size:14px;color:#444">🔍</span><span>Search and get it vuba cyane...</span></div></div>
+  <div class="banners">
+    <div class="banner-wrap" id="bwrap" style="display:flex;transition:transform .4s ease;transform:translateX(-${S.banner*100}%)">
+      ${BANNERS.map(b=>`<div class="banner" style="flex-shrink:0;width:100%;height:118px;background:${b.bg};position:relative;overflow:hidden;padding:14px;display:flex;flex-direction:column;justify-content:flex-end;border-radius:12px"><div class="banner-overlay"></div><h3 style="color:#fff;font-size:15px;font-weight:700;position:relative;z-index:2">${b.title}</h3><p style="color:rgba(255,255,255,.72);font-size:10px;margin-top:2px;position:relative;z-index:2">${b.sub}</p></div>`).join('')}
+    </div>
+    <div class="bdots">${BANNERS.map((_,i)=>`<div class="bdot ${i===S.banner?'on':''}" onclick="setBanner(${i})"></div>`).join('')}</div>
+  </div>
+  <div class="section">
+    <div class="sec-hdr"><span class="sec-title">We know you might like...</span></div>
+    <div class="hscroll">
+      ${FEAT_DISHES.map(d=>`<div class="dish-card" onclick="openRest('${d.rid}')"><div class="dish-img" style="background:${d.col}22;color:${d.col}">${d.n}</div><div class="dish-body"><div class="dish-name">${d.n}</div><div class="dish-rest">${d.rest}</div><div class="dish-meta"><span class="dp">${fmt(d.p)}</span><span class="ds">★ 4.8 · 3km</span></div></div></div>`).join('')}
+    </div>
+  </div>
+  ${SECTIONS.map(sec=>`
+  <div class="section">
+    <div class="sec-hdr"><span class="sec-title">${sec.title}</span><span class="sec-see" onclick="">See all</span></div>
+    <div class="hscroll">
+      ${sec.ids.map(id=>{const r=RESTS.find(x=>x.id===id);if(!r)return'';return`<div class="rest-card" onclick="openRest('${r.id}')"><div class="rest-img" style="background:${r.col}22;color:${r.col}">${r.feat}</div><div class="rest-body"><div class="rest-name">${r.name}</div><div class="rest-df">DF: 1,000 RWF · ${r.t}min</div><div class="rest-row"><span class="rr-stars">★ ${r.r}</span><span class="rr-dist">${(Math.random()*7+1).toFixed(1)}km</span></div><div class="rr-fee">No container charge</div></div></div>`;}).join('')}
+    </div>
+  </div>`).join('')}
+  <div style="height:16px"></div>`;
+}
+
+function menuScr(){
+  const r=S.rest;const c=cc();const tot=ct();
+  return `
+  <div class="hdr"><button class="back" onclick="S.rest=null;render()">←</button><div><div class="hdr-title">${r.name}</div><div class="hdr-sub">★ ${r.r} · ${r.t} min</div></div>${c>0?`<button onclick="setTab('cart')" style="background:#D85A30;color:#fff;border:none;border-radius:20px;padding:4px 10px;font-size:9px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">${c} items</button>`:''}</div>
+  <div class="menu-banner"><div class="menu-rname">${r.name}</div><div class="menu-meta"><span>★ ${r.r}</span><span>${r.t} min</span><span class="g">1,000 RWF delivery</span><span class="g">No container charge</span></div></div>
+  <div class="msec">Menu</div>
+  ${r.items.map(item=>{const ic=S.cart.find(x=>x.name===item.n);return`<div class="mi"><div class="mi-info"><div class="mi-name">${item.n}</div><div class="mi-desc">${item.d}</div><div class="mi-price">${fmt(item.p)}</div></div><div class="ctrl">${ic?`<button class="qb" onclick="rmv('${item.n.replace(/'/g,"\\'")}')">−</button><span class="qn">${ic.qty}</span>`:''}<button class="qb a" onclick="add('${item.n.replace(/'/g,"\\'")}','${item.d.replace(/'/g,"\\'")}',${item.p})">+</button></div></div>`;}).join('')}
+  ${c>0?`<div class="sticky-c"><button class="cbtn" onclick="setTab('cart')"><span class="cpill">${c} items</span><span>View Cart</span><span>${fmt(tot)}</span></button></div>`:''}
+  <div style="height:${c>0?0:16}px"></div>`;
+}
+
+function cartScr(){
+  const tot=ct();const fee=1000;const total=tot+fee;
+  if(!S.cart.length)return`<div class="hdr"><div class="hdr-title">Cart</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;color:#333"><div style="font-size:36px;margin-bottom:10px">🛒</div><div style="font-size:13px;font-weight:600;color:#666">Cart is empty</div><button onclick="setTab('home')" style="margin-top:14px;background:#D85A30;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">Browse restaurants</button></div>`;
+  return`<div class="hdr"><div class="hdr-title">Your Cart</div><button onclick="S.cart=[];render()" style="background:transparent;border:none;color:#444;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif">Clear all</button></div>
+  ${S.cart.map(i=>`<div class="ci"><div><div class="ci-name">${i.name}</div><div class="ci-sub">${fmt(i.price)} × ${i.qty} = ${fmt(i.price*i.qty)}</div></div><div class="ctrl"><button class="qb" onclick="rmv('${i.name.replace(/'/g,"\\'")}')">−</button><span class="qn">${i.qty}</span><button class="qb a" onclick="add('${i.name.replace(/'/g,"\\'")}','',${i.price})">+</button></div></div>`).join('')}
+  <div class="sumbox"><div class="srow"><span>Subtotal</span><span>${fmt(tot)}</span></div><div class="srow"><span>Delivery fee</span><span style="color:#1b8a4e;font-weight:600">${fmt(fee)}</span></div><div class="srow" style="color:#2a2a2a;text-decoration:line-through"><span>Container charge</span><span>0 RWF</span></div><div class="stot"><span>Total</span><span style="color:#D85A30">${fmt(total)}</span></div><div class="saving">You save 3,000 RWF vs Vuba Vuba on fees alone</div></div>
+  <div class="paybox"><div class="pay-title">Payment method</div>${[['mtn_momo','MTN Mobile Money','Push notification to your phone'],['airtel_money','Airtel Money','Push notification to your phone'],['cash','Cash on delivery','Pay the rider at your door']].map(([v,l,s])=>`<div class="popt ${S.pay===v?'on':''}" onclick="S.pay='${v}';render()"><input type="radio" ${S.pay===v?'checked':''} style="accent-color:#D85A30;flex-shrink:0"><div><div class="popt-lbl">${l}</div><div class="popt-sub">${s}</div></div></div>`).join('')}</div>
+  <button class="place-btn" onclick="setTab('addr')"><span>Delivery details</span><span style="font-size:10px;opacity:.75">${fmt(total)} →</span></button>`;
+}
+
+function addrScr(){
+  const total=ct()+1000;
+  return`<div class="hdr"><button class="back" onclick="setTab('cart')">←</button><div class="hdr-title">Delivery details</div></div>
+  <div style="flex:1;overflow-y:auto"><div class="addr-wrap">
+  <div><div class="lbl">Your name</div><input class="inp" placeholder="Full name"></div>
+  <div><div class="lbl">Phone number</div><input class="inp" type="tel" placeholder="0788 123 456"></div>
+  <div><div class="lbl">District</div><select class="inp"><option>Gasabo</option><option>Kicukiro</option><option>Nyarugenge</option></select></div>
+  <div><div class="lbl">Street address</div><input class="inp" placeholder="e.g. KG 14 Ave, near Kacyiru roundabout"></div>
+  <div><div class="lbl">Notes for rider (optional)</div><textarea class="inp" rows="2" style="resize:none" placeholder="Any delivery instructions..."></textarea></div>
+  <div class="sumbox" style="margin:0"><div class="srow"><span>Subtotal</span><span>${fmt(ct())}</span></div><div class="srow"><span>Delivery fee</span><span style="color:#1b8a4e;font-weight:600">1,000 RWF</span></div><div class="stot"><span>Total</span><span style="color:#D85A30">${fmt(total)}</span></div></div>
+  <button onclick="placeOrder()" style="background:#D85A30;color:#fff;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;display:flex;justify-content:space-between;width:100%"><span>Place Order</span><span>${fmt(total)}</span></button>
+  <div style="height:10px"></div></div></div>`;
+}
+
+function trackScr(){
+  const total=(ct()||27000)+1000;
+  const steps=[{lbl:'Order confirmed',note:'Payment received, restaurant notified'},{lbl:'Preparing your food',note:'Restaurant is cooking your order'},{lbl:'Rider on the way',note:'Your rider picked up the order'},{lbl:'Delivered!',note:'Enjoy your meal!'}];
+  return`<div class="hdr"><div class="hdr-title">Track Order</div><div style="display:flex;align-items:center;gap:5px"><div class="pip"></div><span style="color:#333;font-size:10px">Live</span></div></div>
+  <div class="trk"><div class="trk-center"><div class="trk-ic">${S.tstep>=4?'🎉':'🛵'}</div><div class="trk-title">${S.tstep>=4?'Delivered!':'On its way!'}</div><div class="trk-sub">From ${S.rest?.name||'Karame'} to your door</div><div class="trk-id">VK-2025-01048</div></div>
+  ${S.tstep<4?`<div class="eta-card"><div><div class="eta-lbl">Estimated arrival</div><div class="eta-val">${['~35 min','~22 min','~8 min'][S.tstep-1]}</div></div><div style="text-align:right"><div class="eta-lbl">Payment</div><div style="font-size:11px;font-weight:600;color:#1b8a4e">${S.pay==='cash'?'Cash on delivery':'Paid'}</div></div></div>`:''}
+  <div class="steps">${steps.map((s,i)=>`<div class="step ${i<S.tstep?'done':''}"><div class="sdot ${i<S.tstep?'done':i===S.tstep-1?'cur':''}">${i<S.tstep?'✓':i+1}</div><div class="sbody"><div class="slbl ${i<S.tstep?'done':i===S.tstep-1?'cur':''}">${s.lbl}</div><div class="snote">${s.note}</div></div></div>`).join('')}</div>
+  <div class="odc"><div class="odc-title">Order summary</div>${(S.cart.length?S.cart:[{name:'Grilled T-Bone Steak',qty:1,price:16000},{name:'Garlic Butter Shrimp',qty:1,price:12000}]).map(i=>`<div class="odc-row"><span class="ok">${i.name} ×${i.qty}</span><span class="ov">${fmt(i.price*i.qty)}</span></div>`).join('')}<div class="odc-row"><span class="ok">Delivery fee</span><span class="ov" style="color:#1b8a4e">1,000 RWF</span></div><div class="odc-row" style="border-top:0.5px solid #1a1a1a;padding-top:6px;margin-top:2px"><span class="ok" style="color:#777">Total</span><span class="ov" style="color:#D85A30">${fmt(total)}</span></div></div>
+  <button class="home-btn" onclick="S.cart=[];S.tstep=1;if(S.ttimer)clearInterval(S.ttimer);setTab('home')">Back to home</button></div>`;
+}
+
+function ordersScr(){
+  return`<div class="hdr"><div class="hdr-title">My Orders</div></div>
+  <div style="padding:10px 14px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#444">Recent orders</div>
+  ${PAST.map(o=>`<div class="oc"><div class="oc-head"><div><div class="oc-num">${o.id}</div><div class="oc-meta">${o.rest} · ${o.date}</div></div><span class="badge bd">Delivered</span></div><div class="oc-items">${o.items.join(', ')}</div><div style="display:flex;justify-content:space-between;align-items:center"><span class="oc-total">${fmt(o.total)}</span><button class="reb" onclick="openRest('${RESTS.find(r=>r.name.includes(o.rest.split(' ')[0]))?.id||'karame'}')">Reorder</button></div></div>`).join('')}`;
+}
+
+function primeScr(){
+  return`<div class="hdr"><div class="hdr-title">Vuka Prime</div></div>
+  <div class="prime-banner"><div class="prime-title">Vuka Prime</div><div class="prime-sub">Subscribe and get:<br>· Free delivery on every order<br>· Priority order processing<br>· Exclusive member discounts<br>· Early access to new restaurants</div><button class="prime-btn">Coming Soon</button></div>
+  <div style="padding:0 14px">${[{ic:'🚀',l:'Free delivery',s:'Never pay a delivery fee'},{ic:'⚡',l:'Priority queue',s:'Your orders processed first'},{ic:'🎁',l:'Member deals',s:'Exclusive discounts weekly'},{ic:'🔔',l:'Early access',s:'Try new restaurants first'}].map(f=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid #1a1a1a"><div style="width:36px;height:36px;background:#1a1a1a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${f.ic}</div><div><div style="font-size:12px;font-weight:600;color:#fff">${f.l}</div><div style="font-size:10px;color:#444;margin-top:2px">${f.s}</div></div></div>`).join('')}</div>`;
+}
+
+function moreScr(){
+  const items=[{ic:'👤',l:'My Account',s:'Profile and preferences'},{ic:'📍',l:'Saved Addresses',s:'Manage delivery locations'},{ic:'💳',l:'Payment Methods',s:'MTN MoMo, Airtel, cards'},{ic:'🎟️',l:'Vouchers & Offers',s:'Redeem promo codes'},{ic:'❓',l:'Help & Support',s:'Chat with us on WhatsApp'},{ic:'⭐',l:'Rate the App',s:'Leave a review on Play Store'},{ic:'📄',l:'Terms & Privacy',s:'Legal information'}];
+  return`<div class="hdr"><div class="hdr-title">More</div></div>
+  <div class="prime-banner"><div style="display:flex;align-items:center;justify-content:space-between"><div><div class="prime-title">Vuka Prime</div><div style="font-size:10px;color:#666;margin-top:2px">Free delivery · Priority service</div></div><button class="prime-btn">Coming Soon</button></div></div>
+  <div style="padding:0 14px">${items.map(it=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:0.5px solid #1a1a1a;cursor:pointer"><div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;background:#1a1a1a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px">${it.ic}</div><div><div style="font-size:13px;font-weight:600;color:#fff">${it.l}</div><div style="font-size:10px;color:#444;margin-top:1px">${it.s}</div></div></div><span style="color:#333;font-size:16px">›</span></div>`).join('')}</div>
+  <div style="padding:20px 14px;text-align:center;color:#333;font-size:10px">Vuka Deliver · v1.0.0 · Kigali, Rwanda<br><span style="color:#D85A30">Change app name any time in settings</span></div>`;
+}
+
+function merchantScr(){
+  const flow={pending:'confirmed',confirmed:'preparing',preparing:'ready',ready:'in_transit'};
+  const nextLbl={pending:'Confirm',confirmed:'Start Cooking',preparing:'Mark Ready',ready:'Dispatch'};
+  const bCls={pending:'bp',confirmed:'bc',preparing:'bpr',ready:'br',in_transit:'bt',delivered:'bd'};
+  const bLbl={pending:'Pending',confirmed:'Confirmed',preparing:'Preparing',ready:'Ready',in_transit:'In Transit',delivered:'Delivered'};
+  const active=S.morders.filter(o=>o.status!=='delivered');
+  const rev=S.morders.reduce((a,o)=>a+o.total,0);
+  return`<div class="mhdr"><div><div class="mhdr-title">Inganzo</div><div class="mhdr-sub">Merchant dashboard</div></div><div class="tog-wrap"><span style="font-size:10px;font-weight:700;color:${S.mopen?'#1b8a4e':'#ef4444'}">${S.mopen?'OPEN':'CLOSED'}</span><div class="tog ${S.mopen?'on':''}" onclick="S.mopen=!S.mopen;render()"><div class="tog-k"></div></div></div></div>
+  <div class="sgrid"><div class="sc"><div class="sv">${active.length}</div><div class="sl">Active orders</div></div><div class="sc"><div class="sv">${Math.round(rev/1000)}K</div><div class="sl">Revenue RWF</div></div><div class="sc"><div class="sv">★ 4.9</div><div class="sl">Rating</div></div></div>
+  <div class="mtabs"><button class="mt ${S.mtab==='orders'?'on':'off'}" onclick="S.mtab='orders';render()">Orders (${active.length})</button><button class="mt ${S.mtab==='menu'?'on':'off'}" onclick="S.mtab='menu';render()">Menu</button></div>
+  <div style="flex:1;overflow-y:auto;padding:7px 0 14px">
+  ${S.mtab==='orders'?S.morders.map((o,i)=>`<div class="oc" style="margin-bottom:7px"><div class="oc-head"><div><div class="oc-num">${o.id}</div><div class="oc-meta">${o.cust} · ${o.time}</div></div><span class="badge ${bCls[o.status]||'bp'}">${bLbl[o.status]}</span></div><div class="oc-items">${o.items.join(', ')}</div><div style="display:flex;justify-content:space-between;align-items:center"><span class="oc-total">${fmt(o.total)}</span>${flow[o.status]?`<button class="adv" onclick="advM(${i})">→ ${nextLbl[o.status]}</button>`:`<span style="font-size:9px;color:#333">Complete</span>`}</div></div>`).join('')
+  :RESTS.find(r=>r.id==='inganzo').items.map(it=>`<div style="margin:0 14px 7px;background:#1a1a1a;border-radius:10px;padding:10px 12px;border:0.5px solid #2a2a2a;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:11px;font-weight:600;color:#fff">${it.n}</div><div style="font-size:11px;font-weight:600;color:#D85A30;margin-top:2px">${fmt(it.p)}</div></div><button class="adv">Edit</button></div>`).join('')}
+  </div>`;
+}
+
+function adminScr(){
+  const bCls={pending:'bp',confirmed:'bc',preparing:'bpr',ready:'br',in_transit:'bt',delivered:'bd'};
+  const bLbl={pending:'Pending',confirmed:'Confirmed',preparing:'Preparing',ready:'Ready',in_transit:'In Transit',delivered:'Delivered'};
+  const active=AORDERS.filter(o=>!['delivered','cancelled'].includes(o.status)).length;
+  const rev=AORDERS.reduce((s,o)=>s+o.total,0);
+  return`<div class="adm">
+  <div class="adm-hdr"><div><div class="adm-title">Ops Center</div><div class="adm-sub">Live · Kigali</div></div><div class="pip"></div></div>
+  <div class="astats">
+    <div class="astat" style="background:#D85A3012;border-color:#D85A3030"><div class="astat-lbl" style="color:#D85A30">Active orders</div><div class="astat-val" style="color:#D85A30">${active}</div><div class="astat-d">+4 today</div></div>
+    <div class="astat" style="background:#1b8a4e12;border-color:#1b8a4e30"><div class="astat-lbl" style="color:#1b8a4e">Merchants online</div><div class="astat-val" style="color:#1b8a4e">18</div><div class="astat-d">All active</div></div>
+    <div class="astat" style="background:#1d4ed812;border-color:#1d4ed830"><div class="astat-lbl" style="color:#60a5fa">Riders online</div><div class="astat-val" style="color:#60a5fa">5</div><div class="astat-d">Avg 10.4 del.</div></div>
+    <div class="astat" style="background:#6d28d912;border-color:#6d28d930"><div class="astat-lbl" style="color:#c084fc">Revenue today</div><div class="astat-val" style="color:#c084fc">${Math.round(rev/1000)}K</div><div class="astat-d">+22% this week</div></div>
+  </div>
+  <div class="atabs">${['overview','orders','riders','merchants'].map(t=>`<button class="atab ${S.atab===t?'on':'off'}" onclick="S.atab='${t}';render()">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('')}</div>
+  <div class="alist">
+  ${S.atab==='overview'?`<div style="font-size:9px;color:#333;text-transform:uppercase;letter-spacing:.5px;padding:8px 0 5px;font-weight:700">Latest orders</div>${AORDERS.slice(0,4).map(o=>`<div class="acard"><div style="display:flex;justify-content:space-between"><span class="acard-n">${o.id}</span><span class="badge ${bCls[o.status]}">${bLbl[o.status]}</span></div><div class="acard-s">${o.cust} · ${o.addr}</div><div class="acard-t">${fmt(o.total)}</div></div>`).join('')}`
+  :S.atab==='orders'?AORDERS.map(o=>`<div class="acard"><div style="display:flex;justify-content:space-between"><span class="acard-n">${o.id}</span><span class="badge ${bCls[o.status]}">${bLbl[o.status]}</span></div><div class="acard-s">${o.cust}</div><div class="acard-s" style="margin-top:2px">${o.items.join(', ')}</div><div class="acard-t">${fmt(o.total)}</div></div>`).join('')
+  :S.atab==='riders'?RIDERS.map(r=>`<div class="acard"><div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:9px;align-items:center"><div class="rav">${r.name.split(' ').map(x=>x[0]).join('')}</div><div><div style="font-size:11px;font-weight:600;color:#fff">${r.name}</div><div class="acard-s">${r.id} · ${r.del} del. · ★ ${r.r}</div></div></div><div style="color:${r.on?'#1b8a4e':'#333'};font-size:9px;font-weight:700">${r.on?'ONLINE':'OFFLINE'}</div></div></div>`).join('')
+  :RESTS.map(r=>`<div class="acard"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="acard-n">${r.name}</div><div class="acard-s">${r.cat} · ★ ${r.r} · ${r.t}m</div></div><div style="color:#1b8a4e;font-size:9px;font-weight:700">OPEN</div></div></div>`).join('')}
+  </div></div>`;
+}
+
+function add(n,d,p){const e=S.cart.find(i=>i.name===n);if(e)e.qty++;else S.cart.push({name:n,desc:d,price:p,qty:1});render();}
+function rmv(n){const i=S.cart.findIndex(x=>x.name===n);if(i<0)return;if(S.cart[i].qty>1)S.cart[i].qty--;else S.cart.splice(i,1);render();}
+function placeOrder(){S.cart=[];S.tstep=1;if(S.ttimer)clearInterval(S.ttimer);S.tab='track';render();S.ttimer=setInterval(()=>{S.tstep++;render();if(S.tstep>=4)clearInterval(S.ttimer);},2200);}
+function advM(i){const f={pending:'confirmed',confirmed:'preparing',preparing:'ready',ready:'in_transit'};const c=S.morders[i].status;if(f[c]){S.morders[i].status=f[c];render();}}
+
+render();startBT();
+</script>
+</body>
+</html>
