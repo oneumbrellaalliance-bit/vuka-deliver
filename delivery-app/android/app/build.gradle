@@ -1,0 +1,59 @@
+// app/build.gradle
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'rw.vuka.deliver'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "rw.vuka.deliver"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+
+        // ── TWA configuration ────────────────────────────────────
+        // Replace with your actual Vercel URL before building
+        manifestPlaceholders = [
+            hostName           : "vuka-deliver.vercel.app",
+            defaultUrl         : "https://vuka-deliver.vercel.app/",
+            launcherName       : "Vuka Deliver",
+            // Splash screen background colour
+            navigationColor    : "#D85A30",
+            navigationDividerColor: "#D85A30",
+            backgroundColor    : "#F5F3EF",
+            // Status bar
+            statusBarColor     : "#1a1a1a",
+        ]
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Sign with your keystore — see ANDROID_DEPLOY.md
+            signingConfig signingConfigs.debug // swap to release keystore before publishing
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    // Trusted Web Activity library
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+}

@@ -1,0 +1,357 @@
+# VUKA DELIVER — COMPLETE STEP BY STEP GUIDE
+# 3 days, 1 hour each. Everything is already written.
+# You are not building — you are connecting pieces.
+
+=============================================================
+BEFORE YOU START — DOWNLOAD THESE
+=============================================================
+
+Files you need on your laptop:
+
+1. delivery-app-android-FINAL.zip  ← the full codebase
+2. vuka-deliver-beta.html          ← shareable demo for your friend
+
+Install these before Day 1:
+- Node.js 18+:     https://nodejs.org  (click "LTS" version)
+- Android Studio:  https://developer.android.com/studio
+- Git:             https://git-scm.com
+
+=============================================================
+DAY 1 — GET THE APP LIVE ONLINE  (1 hour)
+=============================================================
+
+STEP 1: Extract the zip (2 min)
+────────────────────────────────
+- Unzip delivery-app-android-FINAL.zip
+- You'll have a folder called "delivery-app"
+- Open that folder in VS Code (or any code editor)
+
+STEP 2: Set up Supabase — your database (15 min)
+────────────────────────────────────────────────
+1. Go to https://supabase.com
+2. Click "Start your project" → sign up free
+3. Click "New Project"
+   - Name: vuka-deliver
+   - Database password: make a strong one, SAVE IT
+   - Region: West EU (Ireland) — closest to Rwanda
+   - Click "Create new project" — wait ~2 min
+
+4. Once it loads, click "SQL Editor" in the left sidebar
+5. Click "New query"
+6. Open the file: supabase/migrations/001_initial.sql
+   - Copy ALL the text, paste into SQL Editor, click "Run"
+   - Should say "Success. No rows returned"
+
+7. Click "New query" again
+8. Open the file: supabase/seed_real_restaurants.sql
+   - Copy ALL the text, paste into SQL Editor, click "Run"
+   - Should say "Success"
+
+9. Get your keys:
+   - Click Settings (gear icon, bottom left) → API
+   - Copy and save these two things:
+     * Project URL    (looks like: https://xxxxx.supabase.co)
+     * anon public    (long string starting with eyJ...)
+
+STEP 3: Set up your environment file (5 min)
+────────────────────────────────────────────
+1. In your delivery-app folder, find the file: .env.example
+2. Make a copy of it named: .env.local
+3. Open .env.local and fill in:
+
+   NEXT_PUBLIC_SUPABASE_URL=paste your Project URL here
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=paste your anon key here
+
+   Leave everything else for now (payments come Day 2)
+
+STEP 4: Install and run locally (10 min)
+─────────────────────────────────────────
+Open Terminal (Mac) or Command Prompt (Windows) in your delivery-app folder:
+
+   npm install
+
+Wait for it to finish (2-3 min), then:
+
+   npm run dev
+
+Open your browser at: http://localhost:3000
+You should see all 18 restaurants. 
+
+STEP 5: Deploy to Vercel — make it live (15 min)
+────────────────────────────────────────────────
+1. Go to https://vercel.com → sign up free (use GitHub)
+2. If you don't have GitHub: https://github.com → sign up free
+
+3. Push your code to GitHub:
+   In terminal:
+   
+   git init
+   git add .
+   git commit -m "first commit"
+
+   Go to github.com → New repository → name it "vuka-deliver"
+   Copy the commands it shows you (git remote add origin...) and run them
+
+4. In Vercel:
+   - Click "Add New Project"
+   - Import your vuka-deliver GitHub repo
+   - Click "Environment Variables"
+   - Add these two:
+     * NEXT_PUBLIC_SUPABASE_URL = your URL
+     * NEXT_PUBLIC_SUPABASE_ANON_KEY = your key
+   - Click "Deploy"
+   - Wait ~2 min
+
+5. Vercel gives you a URL like: https://vuka-deliver.vercel.app
+   Open it on your phone. The app is live.
+
+END OF DAY 1 ✓
+You have a live working web app. Share the Vercel URL with anyone.
+
+=============================================================
+DAY 2 — ACCOUNTS + PAYMENTS  (1 hour)
+=============================================================
+
+STEP 6: Create your admin account (10 min)
+──────────────────────────────────────────
+1. Go to your live Vercel URL + /signup
+   Example: https://vuka-deliver.vercel.app/signup
+
+2. Sign up with your phone number and a password
+
+3. Go to Supabase → Table Editor → profiles table
+   Find your row (your phone number will be there)
+   Change the "role" column from "customer" to "admin"
+   Click Save
+
+4. Now go to: your-url/admin
+   You should see the ops dashboard
+
+STEP 7: Register for MTN Mobile Money API (20 min)
+──────────────────────────────────────────────────
+DO THIS FIRST — approval can take a day, so start it early
+
+1. Go to: https://momodeveloper.mtn.com
+2. Click "Sign Up" → create account
+3. Go to "Products" → subscribe to "Collection"
+4. You'll get a Subscription Key by email
+
+5. Create API credentials:
+   In the sandbox, run these two API calls (use Postman or the
+   built-in sandbox on their site):
+   
+   POST /v1_0/apiuser  → creates API User UUID
+   POST /v1_0/apiuser/{uuid}/apikey  → creates API Key
+
+6. Add to Vercel Environment Variables:
+   MTN_MOMO_BASE_URL = https://sandbox.momodeveloper.mtn.com
+   MTN_MOMO_SUBSCRIPTION_KEY = your subscription key
+   MTN_MOMO_API_USER = your API user UUID
+   MTN_MOMO_API_KEY = your API key
+   MTN_MOMO_TARGET_ENV = sandbox
+
+7. Redeploy on Vercel (it redeploys automatically when you add env vars)
+
+STEP 8: Set up SMS notifications (15 min)
+──────────────────────────────────────────
+1. Go to: https://africastalking.com
+2. Sign up → Create app → name it "vuka-deliver"
+3. Get your API key from the dashboard
+4. Add to Vercel:
+   AT_API_KEY = your key
+   AT_USERNAME = your username
+   AT_SENDER_ID = VukaDeliv
+
+STEP 9: Test a full order (15 min)
+────────────────────────────────────
+1. Open your live URL on your phone
+2. Browse restaurants → pick one → add items to cart
+3. Go to checkout → enter your real phone number
+4. Choose MTN Mobile Money
+5. Place order → you should get a push notification on your phone
+6. Approve it → order should move to "confirmed"
+7. Go to /merchant (logged in as the restaurant owner) → advance the order
+8. Go to /admin → watch it move in the ops panel
+
+END OF DAY 2 ✓
+Full order flow working. Payments live. SMS notifications working.
+
+=============================================================
+DAY 3 — ANDROID APP + GOOGLE PLAY  (1 hour)
+=============================================================
+
+STEP 10: Generate your signing keystore (10 min)
+─────────────────────────────────────────────────
+This is your app's permanent identity. NEVER lose this file.
+
+Open Terminal and run:
+
+   keytool -genkey -v \
+     -keystore vuka-deliver.keystore \
+     -alias vuka \
+     -keyalg RSA \
+     -keysize 2048 \
+     -validity 10000
+
+Fill in the prompts:
+  First/last name: Your name
+  Organization: Vuka Deliver Ltd
+  City: Kigali
+  Country code: RW
+  Password: choose a strong password, SAVE IT
+
+STEP 11: Get your SHA-256 fingerprint (5 min)
+──────────────────────────────────────────────
+   keytool -list -v \
+     -keystore vuka-deliver.keystore \
+     -alias vuka
+
+Look for "SHA256:" — copy that line.
+It looks like: AB:CD:EF:12:34:56...
+
+STEP 12: Update assetlinks.json (5 min)
+────────────────────────────────────────
+1. Open: public/.well-known/assetlinks.json
+2. Replace REPLACE_WITH_YOUR_SHA256_FINGERPRINT with your fingerprint
+   Remove the colons — so AB:CD:EF becomes ABCDEF
+
+3. Save, commit, push to GitHub → Vercel auto-redeploys
+
+4. Verify it works — go to:
+   https://developers.google.com/digital-asset-links/tools/generator
+   Enter your domain and package name (rw.vuka.deliver)
+   Should show green checkmark
+
+STEP 13: Update the domain in Android config (3 min)
+──────────────────────────────────────────────────────
+Open: android/app/build.gradle
+Change this line:
+   hostName : "vuka-deliver.vercel.app",
+   defaultUrl: "https://vuka-deliver.vercel.app/",
+
+Replace with your actual Vercel URL
+
+STEP 14: Build the Android app (15 min)
+────────────────────────────────────────
+1. Open Android Studio
+2. File → Open → select the "android" folder inside delivery-app
+3. Wait for Gradle to sync (first time: 5-10 min on good wifi)
+4. Build → Generate Signed Bundle/APK
+5. Choose: Android App Bundle (.aab)
+6. Browse to your vuka-deliver.keystore file
+7. Enter your passwords
+8. Choose: Release
+9. Click Finish
+10. File appears at: android/app/build/outputs/bundle/release/app-release.aab
+
+STEP 15: Submit to Google Play (15 min)
+────────────────────────────────────────
+1. Go to: https://play.google.com/console
+2. Pay $25 one-time registration fee
+3. Create app:
+   - App name: Vuka Deliver (or your chosen name)
+   - Category: Food & Drink
+   - Free app
+4. Fill in store listing:
+   - Short description: Order food from 18 Kigali restaurants. Delivered in 45 min.
+   - Full description: (use the text from ANDROID_DEPLOY.md)
+5. Upload your .aab file
+6. Add screenshots (screenshot the beta HTML file on your phone)
+7. Submit for review
+
+Google Play reviews take 3-7 days.
+
+END OF DAY 3 ✓
+App submitted to Google Play. Web app fully live.
+
+=============================================================
+AFTER SUBMISSION — WHILE YOU WAIT
+=============================================================
+
+Things to do while waiting for Play Store approval:
+
+1. ADD MORE RESTAURANTS
+   Go to Supabase → Table Editor → merchants
+   Add rows for each new restaurant
+   Add their menu items to menu_items table
+
+2. SET UP A CUSTOM DOMAIN (optional)
+   Buy vuka.rw or vukadelivery.rw from:
+   https://www.ricta.org.rw (Rwanda domain registrar)
+   Then add it in Vercel → Settings → Domains
+
+3. TEST WITH REAL RIDERS
+   Have them sign up at your-url/signup
+   Go to Supabase → profiles → change their role to "rider"
+   Insert a row in rider_profiles table
+
+4. REGISTER MERCHANTS
+   Each restaurant owner signs up at your-url/signup
+   You go to Supabase → profiles → change role to "merchant"
+   In merchants table, set owner_id = their user UUID
+
+=============================================================
+IF SOMETHING BREAKS — COMMON FIXES
+=============================================================
+
+"Cannot find module" error when running npm run dev
+→ Run: npm install  (you probably missed this step)
+
+App shows blank page on Vercel
+→ Check Vercel → Deployments → click the failed deploy → read the error
+→ Usually means an env variable is missing or misspelled
+
+Supabase "permission denied" error
+→ The RLS policies are in the SQL file. Make sure you ran the full 001_initial.sql
+→ Check Supabase → Authentication → Policies — should see rules for each table
+
+MTN MoMo payment not triggering
+→ Make sure MTN_MOMO_TARGET_ENV = sandbox (not production)
+→ The phone number must be a registered sandbox test number
+→ Test numbers are in the MTN developer portal under "Sandbox"
+
+Android "App not verified" on Play Store
+→ The assetlinks.json SHA-256 doesn't match your keystore
+→ Redo Step 11-12 carefully
+
+=============================================================
+QUICK REFERENCE — IMPORTANT URLS
+=============================================================
+
+Your live app:       https://vuka-deliver.vercel.app
+Admin panel:         https://vuka-deliver.vercel.app/admin
+Merchant panel:      https://vuka-deliver.vercel.app/merchant
+Signup:              https://vuka-deliver.vercel.app/signup
+
+Supabase:            https://supabase.com
+Vercel:              https://vercel.com
+MTN MoMo Dev:        https://momodeveloper.mtn.com
+Africa's Talking:    https://africastalking.com
+Google Play Console: https://play.google.com/console
+Asset Links Tester:  https://developers.google.com/digital-asset-links/tools/generator
+
+=============================================================
+YOUR COMPETITIVE EDGE VS VUBA VUBA
+=============================================================
+
+Vuba Vuba charges:   2,500 delivery + 1,500 container = 4,000 RWF
+You charge:          1,000 delivery + 0 container     = 1,000 RWF
+
+Customer saves 3,000 RWF every single order.
+That's the message. That's why they'll switch.
+
+=============================================================
+CHANGE THE APP NAME
+=============================================================
+
+When you decide on a name, find and replace "Vuka Deliver" in:
+  app/layout.tsx           (metadata title)
+  public/manifest.json     (PWA name)
+  android/app/res/values/strings.xml  (Android app name)
+  .env.example             (NEXT_PUBLIC_APP_NAME)
+
+5 minutes. Can be done any time before Play Store submission.
+
+=============================================================
+YOU'VE GOT THIS.
+=============================================================

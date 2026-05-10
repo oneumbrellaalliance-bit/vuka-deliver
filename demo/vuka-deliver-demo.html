@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Vuka Deliver</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--brand:#D85A30;--brand-dark:#993C1D;--bg:#F5F3EF;--white:#fff;--black:#1a1a1a;--gray1:#f0ece6;--gray2:#e0dbd3;--gray3:#a0998f;--gray4:#6b6560;--text:#1a1a1a;--radius:14px}
+body{font-family:'Outfit',sans-serif;background:#e8e0d6;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 12px 40px}
+
+/* ── shell ─────────────────────────────── */
+.shell{width:100%;max-width:390px}
+.top-nav{display:flex;gap:6px;justify-content:center;margin-bottom:12px;background:#1a1a1a;border-radius:50px;padding:6px}
+.tnb{flex:1;padding:8px 4px;border-radius:44px;border:none;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.tnb.active{background:var(--brand);color:#fff}
+
+/* phone frame */
+.phone{background:var(--bg);border-radius:36px;border:8px solid #1a1a1a;overflow:hidden;height:680px;display:flex;flex-direction:column;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.4)}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:90px;height:22px;background:#1a1a1a;border-radius:0 0 14px 14px;z-index:100}
+.screen-wrap{margin-top:22px;flex:1;overflow:hidden;display:flex;flex-direction:column}
+.screen{flex:1;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+
+/* ── common components ──────────────────── */
+.hdr{background:#1a1a1a;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hdr h1{color:#fff;font-size:15px;font-weight:700;letter-spacing:-.3px}
+.hdr .sub{color:#888;font-size:11px;margin-top:1px}
+.back{background:none;border:none;color:var(--brand);font-size:20px;cursor:pointer;padding:0 10px 0 0;font-family:inherit;line-height:1}
+
+.hero{background:linear-gradient(135deg,var(--brand),var(--brand-dark));padding:20px 16px 24px;flex-shrink:0}
+.hero h2{color:#fff;font-size:22px;font-weight:900;line-height:1.2}
+.hero p{color:rgba(255,255,255,.7);font-size:12px;margin-top:3px}
+.hero-search{width:100%;background:rgba(255,255,255,.2);border:none;border-radius:10px;padding:10px 14px;color:rgba(255,255,255,.7);font-size:13px;margin-top:14px;font-family:inherit;outline:none}
+
+.cats-row{display:flex;gap:7px;padding:12px 14px 8px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;background:#fff;border-bottom:1px solid var(--gray2)}
+.cats-row::-webkit-scrollbar{display:none}
+.cat{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--gray2);background:#fff;color:var(--gray4);cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit}
+.cat.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.rest-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+.rc{background:#fff;border-radius:var(--radius);overflow:hidden;cursor:pointer;border:1px solid var(--gray2);transition:transform .12s,box-shadow .12s}
+.rc:active{transform:scale(.97)}
+.rc-img{height:70px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:-.2px;text-align:center;padding:0 6px;line-height:1.3}
+.rc-body{padding:9px 10px 11px}
+.rc-name{font-size:12px;font-weight:700;color:var(--text);line-height:1.3}
+.rc-cat{font-size:10px;color:var(--gray3);margin-top:2px}
+.rc-meta{display:flex;justify-content:space-between;margin-top:7px;font-size:10px}
+.rc-stars{color:var(--brand);font-weight:700}
+.rc-time{color:var(--gray3)}
+.rc-fee{font-size:10px;color:#27a060;font-weight:600;margin-top:3px}
+
+/* menu screen */
+.menu-banner{padding:18px 16px 14px;background:#fff;border-bottom:1px solid var(--gray2);flex-shrink:0}
+.menu-name{font-size:17px;font-weight:800;color:var(--text)}
+.menu-meta{font-size:11px;color:var(--gray3);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
+.menu-meta span{display:flex;align-items:center;gap:3px}
+.section-hdr{padding:12px 14px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray3);flex-shrink:0;background:var(--bg)}
+.mi{padding:12px 14px;border-bottom:1px solid #f5f2ee;display:flex;gap:12px;align-items:flex-start;background:#fff}
+.mi-info{flex:1}
+.mi-name{font-size:13px;font-weight:700;color:var(--text)}
+.mi-desc{font-size:11px;color:var(--gray3);margin-top:3px;line-height:1.4}
+.mi-price{font-size:13px;font-weight:700;color:var(--brand);margin-top:6px}
+.mi-ctrl{display:flex;align-items:center;gap:7px;flex-shrink:0;margin-top:2px}
+.qb{width:28px;height:28px;border-radius:50%;border:1px solid var(--gray2);background:#fff;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);font-family:inherit}
+.qb.add{background:var(--brand);color:#fff;border-color:var(--brand)}
+.qn{font-size:14px;font-weight:700;min-width:16px;text-align:center;color:var(--text)}
+.sticky-cart{position:sticky;bottom:0;padding:10px 14px 14px;background:var(--bg);border-top:1px solid var(--gray2)}
+.cart-btn{width:100%;background:#1a1a1a;color:#fff;border:none;border-radius:12px;padding:14px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;font-family:inherit}
+.cart-pill{background:var(--brand);color:#fff;font-size:11px;padding:2px 9px;border-radius:10px;font-weight:700}
+
+/* cart */
+.cart-item{padding:12px 14px;border-bottom:1px solid #f5f2ee;display:flex;justify-content:space-between;align-items:center;background:#fff}
+.ci-name{font-size:13px;font-weight:700;color:var(--text)}
+.ci-sub{font-size:11px;color:var(--brand);margin-top:3px;font-weight:600}
+.summary{margin:12px 14px;background:#fff;border-radius:var(--radius);padding:14px;border:1px solid var(--gray2)}
+.sum-row{display:flex;justify-content:space-between;font-size:12px;color:var(--gray3);padding:4px 0}
+.sum-total{display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:var(--text);border-top:1px solid var(--gray2);padding-top:10px;margin-top:6px}
+.sum-savings{text-align:center;font-size:11px;color:#27a060;font-weight:600;margin-top:8px;padding:6px;background:#edfaf3;border-radius:8px}
+.pay-box{margin:0 14px 10px;background:#fff;border-radius:var(--radius);padding:14px;border:1px solid var(--gray2)}
+.pay-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px}
+.pay-opt{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;padding:8px 10px;border-radius:10px;border:1px solid var(--gray2)}
+.pay-opt.sel{border-color:var(--brand);background:#fff8f5}
+.pay-opt-lbl{font-size:12px;font-weight:600;color:var(--text)}
+.pay-opt-sub{font-size:10px;color:var(--gray3)}
+.place-btn{margin:0 14px 16px;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;width:calc(100% - 28px);font-family:inherit;display:flex;justify-content:space-between;align-items:center}
+
+/* address */
+.addr-form{padding:14px;display:flex;flex-direction:column;gap:10px}
+.lbl{font-size:11px;font-weight:700;color:var(--gray4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.inp{width:100%;background:#fff;border:1px solid var(--gray2);border-radius:10px;padding:11px 13px;font-size:13px;font-family:inherit;color:var(--text);outline:none}
+.inp:focus{border-color:var(--brand)}
+select.inp{appearance:none;-webkit-appearance:none}
+
+/* tracking */
+.track-screen{padding:20px 16px;flex:1;overflow-y:auto}
+.track-status{text-align:center;margin-bottom:24px}
+.track-icon{font-size:48px;margin-bottom:10px}
+.track-title{font-size:20px;font-weight:900;color:var(--text)}
+.track-sub{font-size:12px;color:var(--gray3);margin-top:4px}
+.track-num{font-size:11px;font-weight:700;color:var(--brand);margin-top:6px;letter-spacing:.3px}
+.eta-bar{background:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--gray2)}
+.eta-lbl{font-size:11px;color:var(--gray3);font-weight:600}
+.eta-val{font-size:18px;font-weight:900;color:var(--brand)}
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:14px;align-items:flex-start;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;left:18px;top:38px;width:2px;height:32px;background:var(--gray2)}
+.step:not(:last-child).done::after{background:var(--brand)}
+.step-dot{width:36px;height:36px;border-radius:50%;background:#fff;border:2px solid var(--gray2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;transition:all .3s}
+.step-dot.done{background:var(--brand);border-color:var(--brand)}
+.step-dot.active{background:#fff;border-color:var(--brand);box-shadow:0 0 0 4px rgba(216,90,48,.15)}
+.step-body{padding-top:6px;padding-bottom:24px}
+.step-label{font-size:13px;font-weight:700;color:var(--gray2)}
+.step-label.done,.step-label.active{color:var(--text)}
+.step-note{font-size:11px;color:var(--gray3);margin-top:2px}
+.order-detail-card{background:#fff;border-radius:var(--radius);padding:14px;border:1px solid var(--gray2);margin-bottom:10px}
+.odc-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px}
+.odc-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f5f2ee}
+.odc-row:last-child{border:none}
+.odc-key{color:var(--gray3)}
+.odc-val{font-weight:600;color:var(--text)}
+.reorder-btn{width:100%;background:#1a1a1a;color:#fff;border:none;border-radius:12px;padding:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px}
+
+/* merchant */
+.merch-hdr{background:#1a1a1a;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.merch-hdr h1{color:#fff;font-size:15px;font-weight:700}
+.toggle-wrap{display:flex;align-items:center;gap:8px}
+.tog-lbl{font-size:11px;font-weight:700}
+.tog{width:44px;height:24px;border-radius:12px;background:#555;position:relative;cursor:pointer;transition:background .2s}
+.tog.on{background:#27a060}
+.tog-knob{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tog.on .tog-knob{left:23px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px}
+.stat-card{background:#fff;border-radius:10px;padding:10px;text-align:center;border:1px solid var(--gray2)}
+.stat-val{font-size:18px;font-weight:800;color:var(--text)}
+.stat-lbl{font-size:10px;color:var(--gray3);margin-top:2px}
+.tab-row{display:flex;gap:6px;padding:8px 14px 0;flex-shrink:0;background:var(--bg)}
+.tab{padding:7px 16px;border-radius:20px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab.on{background:var(--brand);color:#fff}
+.tab.off{background:#fff;color:var(--gray4)}
+.order-card{margin:8px 14px 0;background:#fff;border-radius:var(--radius);padding:12px 14px;border:1px solid var(--gray2)}
+.oc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.oc-num{font-size:13px;font-weight:800;color:var(--text)}
+.oc-meta{font-size:10px;color:var(--gray3);margin-top:2px}
+.badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px}
+.b-pending{background:#fff3e0;color:#e65100}
+.b-confirmed{background:#e3f2fd;color:#1565c0}
+.b-preparing{background:#e3f2fd;color:#1565c0}
+.b-ready{background:#ede7f6;color:#4527a0}
+.b-transit{background:#ede7f6;color:#4527a0}
+.b-delivered{background:#e8f5e9;color:#1b5e20}
+.oc-items{font-size:11px;color:var(--gray3);margin-bottom:9px;line-height:1.5}
+.oc-foot{display:flex;justify-content:space-between;align-items:center}
+.oc-total{font-size:13px;font-weight:800;color:var(--brand)}
+.adv-btn{background:#1a1a1a;color:#fff;border:none;border-radius:9px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.menu-item-row{margin:8px 14px 0;background:#fff;border-radius:var(--radius);padding:12px 14px;border:1px solid var(--gray2);display:flex;justify-content:space-between;align-items:center}
+.mir-name{font-size:12px;font-weight:700;color:var(--text)}
+.mir-price{font-size:12px;font-weight:700;color:var(--brand);margin-top:2px}
+.mir-edit{background:var(--gray1);border:none;border-radius:8px;padding:5px 11px;font-size:10px;font-weight:700;cursor:pointer;color:var(--gray4);font-family:inherit}
+
+/* admin */
+.adm{background:#0d0d14;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.adm-hdr{background:#14141e;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e1e2e;flex-shrink:0}
+.adm-hdr h1{color:#fff;font-size:15px;font-weight:700}
+.adm-hdr .sub{color:#555;font-size:11px;margin-top:1px}
+.live-pip{width:8px;height:8px;border-radius:50%;background:var(--brand);box-shadow:0 0 8px var(--brand);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.adm-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;flex-shrink:0}
+.adm-stat{border-radius:12px;padding:12px;border:1px solid}
+.adm-stat .al{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.adm-stat .av{font-size:22px;font-weight:900}
+.adm-stat .ad{font-size:10px;margin-top:3px}
+.adm-tabs{display:flex;gap:5px;padding:8px 14px 0;flex-shrink:0}
+.adm-tab{padding:6px 13px;border-radius:20px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.adm-tab.on{background:var(--brand);color:#fff}
+.adm-tab.off{background:#1e1e2e;color:#666}
+.adm-list{flex:1;overflow-y:auto;padding:8px 14px 16px;scrollbar-width:none}
+.adm-list::-webkit-scrollbar{display:none}
+.adm-card{background:#14141e;border:1px solid #1e1e2e;border-radius:var(--radius);padding:11px 13px;margin-bottom:7px}
+.adm-card .an{font-size:12px;font-weight:700;color:#fff}
+.adm-card .as{font-size:10px;color:#555;margin-top:2px}
+.adm-card .at{font-size:13px;font-weight:800;color:var(--brand);margin-top:5px}
+.rider-row{display:flex;justify-content:space-between;align-items:center}
+.rider-av{width:36px;height:36px;border-radius:50%;background:#1e1e2e;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#888;flex-shrink:0}
+.rider-info .rn{font-size:12px;font-weight:700;color:#fff}
+.rider-info .rm{font-size:10px;color:#555;margin-top:2px}
+.r-online{color:#27a060;font-size:10px;font-weight:700}
+.r-offline{color:#555;font-size:10px;font-weight:700}
+.merch-row{display:flex;justify-content:space-between;align-items:center}
+.merch-info .mn{font-size:12px;font-weight:700;color:#fff}
+.merch-info .mm{font-size:10px;color:#555;margin-top:2px}
+.m-open{color:#27a060;font-size:10px;font-weight:700}
+.m-closed{color:#e24b4a;font-size:10px;font-weight:700}
+.adm-action-row{display:flex;gap:5px;margin-top:6px;justify-content:flex-end}
+.adm-btn{font-size:10px;font-weight:700;padding:4px 10px;border-radius:8px;border:none;cursor:pointer;font-family:inherit}
+
+/* comparison banner */
+.compare-bar{margin:0 14px 10px;background:#edfaf3;border:1px solid #b8e8cd;border-radius:10px;padding:10px 12px;font-size:11px;font-weight:600;color:#1b5e20;display:flex;align-items:center;gap:8px}
+.compare-bar span{font-size:16px}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="top-nav">
+    <button class="tnb active" id="btn-customer" onclick="switchPanel('customer')">📱 Customer</button>
+    <button class="tnb" id="btn-merchant" onclick="switchPanel('merchant')">🍽️ Merchant</button>
+    <button class="tnb" id="btn-admin"    onclick="switchPanel('admin')">⚡ Admin</button>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen-wrap">
+      <div class="screen" id="screen"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────
+const RESTS = [
+  {id:'karame',       name:'Karame',               cat:'Cafe & Grills',      r:4.8, t:'20-35', fee:1000, col:'#2563eb', open:true,
+    items:[{n:'Double Beef Burger',d:'Double patty beef burger',p:10000},{n:'Grilled Chicken Burger',d:'Juicy grilled chicken burger',p:9000},{n:'Meatlovers Loaded Fries',d:'Ultimate loaded fries with meat',p:9000},{n:'Meatlovers Quesadilla',d:'Loaded meatlovers quesadilla',p:9500},{n:'Chicken Loaded Fries',d:'Fries loaded with grilled chicken',p:8000},{n:'Karame Beef Rolex',d:'Signature beef rolex wrap',p:6000},{n:'Meatlovers Rolex',d:'Fully loaded meatlovers rolex',p:8000},{n:'Grilled Chicken Breast',d:'Marinated and grilled chicken breast',p:10000},{n:'Spicy Curry Chicken',d:'Spicy chicken curry with rice',p:9000},{n:'Basil Chicken Rice',d:'Thai basil chicken with rice',p:9000}]},
+  {id:'now-now',      name:'Now Now Rolex',         cat:'Rolex & Cafe',       r:4.9, t:'20-35', fee:1000, col:'#7c3aed', open:true,
+    items:[{n:'The Korean Rolex',d:'Korean-style rolex wrap',p:8000},{n:'BBQ Chicken Rolex',d:'BBQ chicken rolex wrap',p:7500},{n:'Nachos Fajita Chicken',d:'Nachos loaded with fajita chicken',p:10000},{n:'Chilli Beef Cheese Fries',d:'Loaded chilli beef cheese fries',p:8000},{n:'The Rwandan Beef Rolex',d:'Classic Rwandan beef rolex',p:4500},{n:'The Mexican Chicken Rolex',d:'Mexican spiced chicken rolex',p:8000},{n:'Feta and Avocado Wrap',d:'Feta and avocado wrap',p:7500},{n:'Passion Whisky Sour',d:'Fresh passion fruit whisky sour',p:10000},{n:'Cold Brew Coffee',d:'Cold brew Rwandan coffee',p:4000},{n:'African Tea',d:'Spiced Rwandan African tea',p:5000}]},
+  {id:'inganzo',      name:'Inganzo',               cat:'Fine Dining',        r:4.9, t:'30-50', fee:1000, col:'#4338ca', open:true,
+    items:[{n:'Grilled T-Bone Steak',d:'With garlic, lemon and rosemary',p:16000},{n:'Succulent Beef Steak',d:'Seasoned with garlic and pepper',p:14000},{n:'Chicken Cordon Bleu',d:'Stuffed with ham and cheese',p:15000},{n:'Smoked Salmon Salad',d:'Premium smoked salmon salad',p:15000},{n:'Hearty Inganzo Breakfast',d:'Full breakfast with muffin and coffee',p:12000},{n:'Garlic Butter Shrimp',d:'With white wine sauce',p:12000},{n:'Sweet Pork Ribs',d:'Sweet-glazed pork ribs',p:13000},{n:'Creamy Beef Stroganoff',d:'In rich mushroom cream sauce',p:13000}]},
+  {id:'japanda',      name:'Japanda',               cat:'Japanese',           r:4.8, t:'30-50', fee:1000, col:'#0369a1', open:true,
+    items:[{n:'Makunouchi Plate',d:'Teriyaki chicken, fried chicken, perch, salad, rice and soup',p:7500},{n:'Miso Ramen',d:'Rich miso ramen soup',p:6000},{n:'Tonkotsu Shoyu Ramen',d:'Pork broth soy sauce ramen',p:6000},{n:'Karaage Chicken Don',d:'Fried chicken rice bowl with soup',p:5200},{n:'Pork Katsu Don',d:'Pork cutlet rice bowl with soup',p:5200},{n:'Crispy Fried Prawns (5pcs)',d:'Deep fried prawns with tartar sauce',p:7500},{n:'Cheese in Katsu',d:'Mozzarella-stuffed chicken cutlet',p:5000},{n:'Sake Glass (140ml)',d:'Japanese sake, Takashimizu',p:5000}]},
+  {id:'casamia',      name:'Casamia Late Night',    cat:'Italian',            r:4.8, t:'35-55', fee:1000, col:'#1e3a5f', open:true,
+    items:[{n:'Frutti di Mare Pizza',d:'Mixed seafood pizza',p:21000},{n:'Quattro Stagioni',d:'Four seasons signature pizza',p:18900},{n:'Risotto Ai Frutti Di Mare',d:'Seafood risotto',p:19500},{n:'Tagliatelle Al Salmone',d:'Salmon tagliatelle pasta',p:17500},{n:'Spaghetti Carbonara',d:'Classic carbonara spaghetti',p:15500},{n:'Lasagna Classica',d:'Classic baked lasagna',p:16500},{n:'Margarita Pizza',d:'Classic Italian margarita',p:11500},{n:'Beef Brochette',d:'Grilled beef brochette',p:17200}]},
+  {id:'kings',        name:'Kings Fresh Shawarma',  cat:'Shawarma & Burgers', r:4.7, t:'20-40', fee:1000, col:'#b45309', open:true,
+    items:[{n:'Chicken Shawarma',d:'Grilled chicken shawarma wrap',p:7000},{n:'Beef Shawarma',d:'Beef shawarma wrap',p:7500},{n:'King Mixed Shawarma',d:'Mixed chicken and beef shawarma',p:8000},{n:'The Ultimate Burger',d:'Kings signature loaded burger',p:8500},{n:'Double Burger',d:'Double patty burger',p:7500},{n:'Grilled Steak Taco',d:'Grilled beef steak taco',p:8500},{n:'Vanilla Milkshake',d:'Creamy vanilla milkshake',p:4000},{n:'Steak Bacon & Cheese Taco',d:'Premium loaded taco',p:10000}]},
+  {id:'riders',       name:'Riders Lounge',         cat:'Restaurant',         r:4.6, t:'30-50', fee:1000, col:'#6b21a8', open:true,
+    items:[{n:'Wet Fry Beef',d:'With choice of side: fries, mash, rice, ugali',p:18000},{n:'Pork Chops',d:'Grilled pork chops with side',p:21000},{n:'Riders Special Burger',d:'Signature riders burger',p:17000},{n:'Club Sandwich',d:'Classic club sandwich',p:16000},{n:'Goat Brochettes (3pcs)',d:'Three chargrilled goat brochettes',p:14000},{n:'Caesar Salad',d:'Classical caesar with dressing',p:12000},{n:'Avocado & Mango Salad',d:'Fresh avocado and mango salad',p:10000},{n:'Pork Ribs',d:'BBQ pork ribs with side',p:18000}]},
+  {id:'pad-thai',     name:'Pad Thai',              cat:'Thai & Asian',       r:4.7, t:'25-45', fee:1000, col:'#c2410c', open:true,
+    items:[{n:'Beef/Chicken Pad Thai',d:'Classic pad thai noodles',p:8300},{n:'Green Curry Chicken/Beef',d:'Thai green curry with rice',p:8500},{n:'Red Curry Chicken/Beef',d:'Thai red curry with rice',p:8500},{n:'Tom Yum Soup',d:'Classic spicy and sour tom yum',p:8200},{n:'Basil Chicken/Beef Stir Fry',d:'Thai basil stir-fry',p:7500},{n:'Sweet and Sour Chicken',d:'Thai sweet and sour',p:8300},{n:'Papaya Salad',d:'Thai green papaya salad',p:6000},{n:'Chicken Cashew Nuts',d:'Chicken with cashew nuts stir-fry',p:8300}]},
+  {id:'paka',         name:'Paka',                  cat:'East African',       r:4.7, t:'20-35', fee:1000, col:'#065f46', open:true,
+    items:[{n:'Chicken Rolex',d:'Chicken rolex chapati wrap',p:4000},{n:'Beef Rolex',d:'Beef rolex chapati wrap',p:3500},{n:'Chicken Burger with Fries',d:'Chicken burger and fries',p:7000},{n:'Chips & Chicken',d:'Chips and fried chicken',p:6000},{n:'Pilao Chicken',d:'Pilao spiced chicken',p:6000},{n:'Kidomando',d:'Chapati with beans — East African staple',p:3000},{n:'Passion Juice',d:'Fresh passion fruit juice',p:3000},{n:'Paka Platter',d:'Sharing platter for groups',p:30000}]},
+  {id:'palm',         name:'Palm Pizza Kitchen',    cat:'Pizza',              r:4.4, t:'25-45', fee:1000, col:'#b91c1c', open:true,
+    items:[{n:'Margarita (Medium)',d:'Tomato and mozzarella, medium',p:9000},{n:'Pepperoni (Medium)',d:'Classic pepperoni, medium',p:9000},{n:'BBQ Chicken (Medium)',d:'BBQ chicken pizza, medium',p:9000},{n:'Beef Special (Medium)',d:'Beef special pizza, medium',p:9000},{n:'Chicken Supreme (Medium)',d:'Chicken supreme + free topping',p:11000},{n:'Chicken Burger',d:'Crispy chicken burger',p:6000},{n:'Beef Burger',d:'Classic beef burger',p:5500},{n:'Plain Chips',d:'Crispy plain fries',p:2000}]},
+  {id:'arnauld',      name:'The Arnauld Pizza',     cat:'Chicken & Pizza',    r:4.4, t:'25-40', fee:1000, col:'#991b1b', open:true,
+    items:[{n:'1 Piece Chicken & Chips',d:'Single piece chicken with chips',p:4000},{n:'3 Pieces Chicken + Soda',d:'3 pieces, chips, coleslaw, soda',p:10000},{n:'5 Pieces Chicken + Soda',d:'5 pieces, chips and soda',p:12500},{n:'9 Pieces Family Meal',d:'9 pieces, 2 chips, 2 sodas',p:21000},{n:'Kila Kitu Pizza',d:'Full toppings pizza',p:11500},{n:'Meat Lovers Pizza',d:'Loaded meat pizza',p:10000},{n:'Margarita Pizza',d:'Classic margarita pizza',p:9000},{n:'Double Cheese Burger',d:'Double cheese burger and chips',p:8500}]},
+  {id:'sharons',      name:"Sharons Zone",          cat:'Burgers & Breakfast', r:4.5, t:'20-40', fee:1000, col:'#be185d', open:true,
+    items:[{n:'Chicken Burger',d:'Crispy chicken burger',p:6500},{n:'Beef Burger',d:'Classic beef burger',p:4800},{n:'Sharon Cheesy Fries',d:'Signature cheesy fries',p:3000},{n:'Chocolate Shake',d:'Chocolate milkshake',p:3000},{n:'Beef Pilau Rice',d:'Beef pilau with fresh sides',p:8000},{n:'Home Style Chicken',d:'Home-style cooked chicken',p:6500},{n:'Whole Chicken',d:'Whole fried or grilled chicken',p:18000},{n:'Chicken Crunchy Salad',d:'Crunchy chicken salad',p:6000}]},
+  {id:'da-vinci',     name:'Da Vinci House',        cat:'Middle Eastern',     r:4.5, t:'25-45', fee:1000, col:'#92400e', open:true,
+    items:[{n:'Chicken Shawarma',d:'With energy drink and chips included',p:8000},{n:'Beef Shawarma',d:'With energy drink and chips included',p:8000},{n:'Beef Fajita',d:'With energy drink and chips included',p:8000},{n:'Fattah Beef Shawarma',d:'Fattah-style with energy drink',p:10000},{n:'Whole Chicken',d:'Full chicken with chips, drink, salad',p:22000},{n:'Beef Pilau',d:'With energy drink and chips',p:10000},{n:'Cheese Burger',d:'With energy drink and chips',p:8000},{n:'Half Chicken',d:'Half chicken with chips and drink',p:12000}]},
+  {id:'pilau',        name:'Kigali Special Pilau',  cat:'Fast Food',          r:4.6, t:'20-40', fee:1000, col:'#3f6212', open:true,
+    items:[{n:'1 Piece Chicken with Chips',d:'Single piece chicken and fries',p:7000},{n:'3 Piece Chicken with Chips',d:'Three pieces chicken and fries',p:15000},{n:'Full Chicken with Chips',d:'Whole fried chicken with fries',p:22000},{n:'Beef Pilau with Chips',d:'Pilau spiced rice with chips',p:14000},{n:'Chicken BBQ Pizza (Medium)',d:'BBQ chicken pizza, medium',p:8000},{n:'Beef Burger',d:'Classic beef patty burger',p:5000},{n:'Meat Lovers Pizza (Medium)',d:'Meat lovers pizza, medium',p:8000},{n:'Chicken Burger',d:'Crispy chicken burger',p:6000}]},
+  {id:'lolo',         name:'Lolo Pits Meats Shop',  cat:'Butcher',            r:4.5, t:'25-45', fee:1000, col:'#78350f', open:true,
+    items:[{n:'Chicken Breast',d:'Fresh raw chicken breast',p:6100},{n:'Chicken Leg with Thigh',d:'Fresh chicken leg and thigh',p:9600},{n:'Whole Chicken',d:'Dressed whole raw chicken',p:13500},{n:'Beef Ribs (Imbavu)',d:'Bone-in beef ribs',p:4100},{n:'Medium Tilapia',d:'Fresh medium-sized tilapia',p:7100},{n:'Tilapia Fillet',d:'Boneless tilapia fillet',p:11300},{n:'Farmers Choice Frankfurter',d:'Premium pork frankfurters',p:12000},{n:'Beef Brisket',d:'Slow cooking cut (Urushyi)',p:4100}]},
+  {id:'hot-pot',      name:'Hot Pot Pizzeria',      cat:'Pizza & Hot Pot',    r:4.5, t:'25-45', fee:1000, col:'#b91c1c', open:true,
+    items:[{n:'Hotpot Special Pizza',d:'Signature hotpot pizza',p:14000},{n:'Hawaiian Pizza',d:'Ham and pineapple pizza',p:12000},{n:'Whole Chicken Biryani',d:'Full chicken biryani for sharing',p:25000},{n:'Chicken & Spaghetti Hot Pot',d:'Chicken with spaghetti in hot pot',p:6500},{n:'BBQ Chicken Pizza',d:'BBQ chicken pizza',p:11000},{n:'Chicken Shawarma Wrap',d:'Grilled chicken shawarma',p:7000},{n:'Pepperoni Pizza',d:'Classic pepperoni pizza',p:12000},{n:'Hot Chocolate',d:'Rich hot chocolate',p:3000}]},
+  {id:'sub-point',    name:'Sub Point Restaurant',  cat:'Pizza',              r:4.3, t:'30-50', fee:1000, col:'#b91c1c', open:true,
+    items:[{n:'Margharita (Medium)',d:'Classic margharita pizza',p:9000},{n:'Pepperoni (Medium)',d:'Pepperoni pizza',p:10000},{n:'Meat Deluxe (Large)',d:'Loaded meat pizza, large',p:13000},{n:'Chicken BBQ (Medium)',d:'Chicken BBQ pizza',p:10500},{n:'Fully Loaded (Medium)',d:'All toppings pizza',p:10500},{n:'Tuna Pizza (Medium)',d:'Tuna pizza',p:10500},{n:'Four Seasons (Medium)',d:'Four season pizza',p:10500},{n:'Extra Cheese',d:'Add to any pizza',p:1000}]},
+  {id:'goodlife',     name:'Goodlife Store',        cat:'Grocery',            r:4.3, t:'30-50', fee:1000, col:'#15803d', open:true,
+    items:[{n:'Jambo Basmati Rice (5kg)',d:'Premium basmati rice',p:16500},{n:'Crystal Vegetable Oil (3L)',d:'Vegetable cooking oil',p:15800},{n:'Nescafe Classic (200g)',d:'Coffee jar',p:12600},{n:'Apple Cider Vinegar',d:'946ml bottle',p:24000},{n:'Roasted Cashew Nuts',d:'House of Nuts cashews',p:9500},{n:'Inyange Whole Milk (1L)',d:'Fresh whole milk',p:1700},{n:'Dairyland Milk Chocolate',d:'Rwandan milk chocolate bar',p:3000},{n:'Winnaz Salted Chips',d:'Crunchy salted chips',p:2600}]},
+];
+
+const ALL_CATS = ['All','Cafe & Grills','Rolex & Cafe','Shawarma & Burgers','East African','Fast Food','Pizza','Chicken & Pizza','Japanese','Italian','Thai & Asian','Middle Eastern','Fine Dining','Restaurant','Butcher','Grocery'];
+
+const MOCK_ORDERS = [
+  {id:'VK-2025-01044',cust:'Jean-Paul K.',items:['Grilled T-Bone Steak ×1','Smoked Salmon Salad ×1'],total:31000,status:'preparing',time:'12:08 PM',addr:'KG 14 Ave, Kiyovu'},
+  {id:'VK-2025-01043',cust:'Amina N.',items:['Miso Ramen ×2','Karaage Chicken ×1'],total:17500,status:'in_transit',time:'11:54 AM',addr:'KK 5 Rd, Remera'},
+  {id:'VK-2025-01042',cust:'David M.',items:['Chicken Shawarma ×2','Chips ×1'],total:14000,status:'confirmed',time:'11:48 AM',addr:'KN 3 St, Nyamirambo'},
+  {id:'VK-2025-01041',cust:'Clarisse U.',items:['BBQ Chicken Rolex ×1','Cold Brew Coffee ×2'],total:15500,status:'delivered',time:'11:12 AM',addr:'KG 9 Ave, Kimihurura'},
+  {id:'VK-2025-01040',cust:'Patrick R.',items:['Wet Fry Beef ×1','Pork Ribs ×1'],total:36000,status:'delivered',time:'10:55 AM',addr:'KN 7 Blvd, Gikondo'},
+];
+
+const RIDERS = [
+  {name:'Jean-Marie N.',id:'R-012',city:'Kigali',orders:11,rating:4.9,online:true},
+  {name:'Diane U.',     id:'R-007',city:'Kigali',orders:8, rating:4.8,online:true},
+  {name:'Thierry M.',   id:'R-024',city:'Kigali',orders:14,rating:4.7,online:true},
+  {name:'Solange K.',   id:'R-031',city:'Kigali',orders:4, rating:4.9,online:false},
+  {name:'Eric B.',      id:'R-019',city:'Kigali',orders:10,rating:4.6,online:true},
+  {name:'Rose N.',      id:'R-005',city:'Kigali',orders:9, rating:4.8,online:true},
+];
+
+// ── STATE ────────────────────────────────────────────────────
+const S = {
+  panel:'customer',
+  screen:'home',
+  selRest:null,
+  cart:[],
+  cat:'All',
+  payMethod:'mtn_momo',
+  addr:'',name:'',phone:'',
+  trackStep:1,
+  trackTimer:null,
+  merchantTab:'orders',
+  merchantOpen:true,
+  adminTab:'overview',
+  orders:MOCK_ORDERS.map(o=>({...o})),
+  merchantOrders:[
+    {id:'VK-2025-01045',cust:'Hilda M.',items:['Grilled T-Bone Steak ×1'],total:17000,status:'pending',time:'12:14 PM'},
+    {id:'VK-2025-01039',cust:'Eric T.',items:['Creamy Beef Stroganoff ×2'],total:27000,status:'preparing',time:'11:40 AM'},
+    {id:'VK-2025-01037',cust:'Vanessa K.',items:['Sweet Pork Ribs ×1','Salmon Salad ×1'],total:28000,status:'ready',time:'11:25 AM'},
+  ],
+};
+
+const fmt = n => (n||0).toLocaleString() + ' RWF';
+const cartCount = () => S.cart.reduce((s,i)=>s+i.qty,0);
+const cartTotal = () => S.cart.reduce((s,i)=>s+i.price*i.qty,0);
+
+function go(screen,...args){ S.screen=screen; if(args[0]) S.selRest=args[0]; render(); }
+
+function switchPanel(p){
+  S.panel=p; S.screen='home';
+  ['customer','merchant','admin'].forEach(id=>{
+    document.getElementById('btn-'+id)?.classList.toggle('active',id===p);
+  });
+  render();
+}
+
+// ── RENDER ROUTER ────────────────────────────────────────────
+function render(){
+  const sc = document.getElementById('screen');
+  if(!sc) return;
+  if(S.panel==='customer'){
+    if(S.screen==='home')     sc.innerHTML = homeScreen();
+    else if(S.screen==='menu')     sc.innerHTML = menuScreen();
+    else if(S.screen==='cart')     sc.innerHTML = cartScreen();
+    else if(S.screen==='addr')     sc.innerHTML = addrScreen();
+    else if(S.screen==='tracking') sc.innerHTML = trackingScreen();
+  } else if(S.panel==='merchant'){
+    sc.innerHTML = merchantScreen();
+  } else {
+    sc.innerHTML = adminScreen();
+  }
+}
+
+// ── HOME ─────────────────────────────────────────────────────
+function homeScreen(){
+  const rests = S.cat==='All' ? RESTS : RESTS.filter(r=>r.cat===S.cat);
+  const cc = cartCount();
+  return `
+    <div class="hdr">
+      <div><h1>🛵 Vuka Deliver</h1><div class="sub">📍 Kigali · No container charge · 1,000 RWF delivery</div></div>
+      ${cc>0?`<button onclick="go('cart')" style="background:var(--brand);color:#fff;border:none;border-radius:20px;padding:6px 13px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Cart (${cc})</button>`:
+      `<button onclick="go('menu',null); S.screen='home'; render();" style="background:transparent;color:#888;border:none;font-size:11px;cursor:pointer">Sign in</button>`}
+    </div>
+    <div class="hero">
+      <h2>Hungry?</h2>
+      <p>18 restaurants · Delivered in under 45 min</p>
+      <input class="hero-search" placeholder="🔍  Search restaurants or dishes..." readonly>
+    </div>
+    <div class="cats-row">
+      ${ALL_CATS.map(c=>`<button class="cat ${S.cat===c?'on':''}" onclick="S.cat='${c}';render()">${c}</button>`).join('')}
+    </div>
+    <div class="rest-grid">
+      ${rests.map(r=>`
+        <div class="rc" onclick="go('menu',${JSON.stringify(r).replace(/"/g,'&quot;')})">
+          <div class="rc-img" style="background:${r.col}18;color:${r.col}">${r.name.split(' ').slice(0,2).join(' ')}</div>
+          <div class="rc-body">
+            <div class="rc-name">${r.name}</div>
+            <div class="rc-cat">${r.cat}</div>
+            <div class="rc-meta"><span class="rc-stars">★ ${r.r}</span><span class="rc-time">${r.t}m</span></div>
+            <div class="rc-fee">1,000 RWF delivery · No extras</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div style="height:20px"></div>`;
+}
+
+// ── MENU ─────────────────────────────────────────────────────
+function menuScreen(){
+  const r = S.selRest;
+  if(!r) return homeScreen();
+  const cc = cartCount(); const ct = cartTotal();
+  return `
+    <div class="hdr">
+      <button class="back" onclick="go('home')">←</button>
+      <div><h1>${r.name}</h1><div class="sub">★ ${r.r} · ${r.t} min</div></div>
+      ${cc>0?`<button onclick="go('cart')" style="background:var(--brand);color:#fff;border:none;border-radius:20px;padding:5px 11px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">${cc}</button>`:''}
+    </div>
+    <div class="menu-banner">
+      <div class="menu-name">${r.name}</div>
+      <div class="menu-meta">
+        <span>★ ${r.r}</span>
+        <span>🕐 ${r.t} min</span>
+        <span style="color:#27a060;font-weight:700">🛵 1,000 RWF delivery</span>
+        <span style="color:#27a060;font-weight:700">✓ No container charge</span>
+      </div>
+    </div>
+    <div class="section-hdr">Menu</div>
+    ${r.items.map(item=>{
+      const inCart = S.cart.find(c=>c.name===item.n);
+      return `<div class="mi">
+        <div class="mi-info">
+          <div class="mi-name">${item.n}</div>
+          <div class="mi-desc">${item.d}</div>
+          <div class="mi-price">${fmt(item.p)}</div>
+        </div>
+        <div class="mi-ctrl">
+          ${inCart?`<button class="qb" onclick="removeItem('${item.n.replace(/'/g,"\\'")}')">−</button><span class="qn">${inCart.qty}</span>`:``}
+          <button class="qb add" onclick="addItem('${item.n.replace(/'/g,"\\'")}','${item.d.replace(/'/g,"\\'")}',${item.p})">+</button>
+        </div>
+      </div>`;}).join('')}
+    ${cc>0?`<div class="sticky-cart">
+      <button class="cart-btn" onclick="go('cart')">
+        <span class="cart-pill">${cc}</span>
+        <span>View Cart</span>
+        <span>${fmt(ct)}</span>
+      </button>
+    </div>`:''}
+    <div style="height:${cc>0?0:20}px"></div>`;
+}
+
+// ── CART ─────────────────────────────────────────────────────
+function cartScreen(){
+  const ct = cartTotal(); const fee = 1000; const total = ct + fee;
+  const vubaFee = 2500 + 1500; const saving = vubaFee - fee;
+  return `
+    <div class="hdr">
+      <button class="back" onclick="go('menu')">←</button>
+      <h1>Your Cart</h1>
+      ${S.cart.length>0?`<button onclick="S.cart=[];render()" style="background:transparent;color:#888;border:none;font-size:11px;cursor:pointer;font-family:inherit">Clear</button>`:''}
+    </div>
+    ${S.cart.length===0?`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gray3);padding:40px 20px;text-align:center">
+      <div style="font-size:40px;margin-bottom:12px">🛒</div>
+      <div style="font-size:14px;font-weight:600">Your cart is empty</div>
+      <button onclick="go('home')" style="margin-top:16px;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Browse restaurants</button>
+    </div>`:`
+    <div style="flex:1;overflow-y:auto">
+      ${S.cart.map(item=>`
+        <div class="cart-item">
+          <div>
+            <div class="ci-name">${item.name}</div>
+            <div class="ci-sub">${fmt(item.price)} × ${item.qty} = ${fmt(item.price*item.qty)}</div>
+          </div>
+          <div class="mi-ctrl">
+            <button class="qb" onclick="removeItem('${item.name.replace(/'/g,"\\'")}')">−</button>
+            <span class="qn">${item.qty}</span>
+            <button class="qb add" onclick="addItem('${item.name.replace(/'/g,"\\'")}','',${item.price})">+</button>
+          </div>
+        </div>`).join('')}
+
+      <div class="summary">
+        <div class="sum-row"><span>Subtotal</span><span>${fmt(ct)}</span></div>
+        <div class="sum-row"><span>Delivery fee</span><span style="color:#27a060;font-weight:700">${fmt(fee)}</span></div>
+        <div class="sum-row" style="color:var(--gray2);text-decoration:line-through"><span>Container charge</span><span>0 RWF</span></div>
+        <div class="sum-total"><span>Total</span><span style="color:var(--brand)">${fmt(total)}</span></div>
+        <div class="sum-savings">💚 You save ${fmt(saving)} vs Vuba Vuba on fees alone</div>
+      </div>
+
+      <div class="pay-box">
+        <div class="pay-title">Payment method</div>
+        ${[{v:'mtn_momo',l:'MTN Mobile Money',s:'Push notification to your phone'},{v:'airtel_money',l:'Airtel Money',s:'Push notification to your phone'},{v:'cash',l:'Cash on delivery',s:'Pay the rider when order arrives'}].map(opt=>`
+          <div class="pay-opt ${S.payMethod===opt.v?'sel':''}" onclick="S.payMethod='${opt.v}';render()">
+            <input type="radio" ${S.payMethod===opt.v?'checked':''} style="accent-color:var(--brand)">
+            <div><div class="pay-opt-lbl">${opt.l}</div><div class="pay-opt-sub">${opt.s}</div></div>
+          </div>`).join('')}
+      </div>
+
+      <button class="place-btn" onclick="go('addr')">
+        <span>Delivery details</span>
+        <span style="font-size:11px;opacity:.8">${fmt(total)} →</span>
+      </button>
+    </div>`}`;
+}
+
+// ── ADDRESS ───────────────────────────────────────────────────
+function addrScreen(){
+  const ct = cartTotal(); const total = ct + 1000;
+  return `
+    <div class="hdr">
+      <button class="back" onclick="go('cart')">←</button>
+      <h1>Delivery details</h1>
+    </div>
+    <div style="flex:1;overflow-y:auto">
+      <div class="addr-form">
+        <div>
+          <div class="lbl">Your name</div>
+          <input class="inp" placeholder="Full name" value="${S.name}" oninput="S.name=this.value" id="inp-name">
+        </div>
+        <div>
+          <div class="lbl">Phone number</div>
+          <input class="inp" type="tel" placeholder="0788 123 456" value="${S.phone}" oninput="S.phone=this.value" id="inp-phone">
+        </div>
+        <div>
+          <div class="lbl">District</div>
+          <select class="inp" id="inp-district">
+            <option>Gasabo</option><option>Kicukiro</option><option>Nyarugenge</option>
+          </select>
+        </div>
+        <div>
+          <div class="lbl">Street address</div>
+          <input class="inp" placeholder="e.g. KG 14 Ave, near Kacyiru roundabout" value="${S.addr}" oninput="S.addr=this.value" id="inp-addr">
+        </div>
+        <div>
+          <div class="lbl">Delivery notes (optional)</div>
+          <textarea class="inp" placeholder="Instructions for the rider..." rows="2" style="resize:none"></textarea>
+        </div>
+
+        <div class="summary" style="margin:0">
+          <div class="sum-row"><span>Subtotal</span><span>${fmt(ct)}</span></div>
+          <div class="sum-row"><span>Delivery fee</span><span style="color:#27a060;font-weight:700">1,000 RWF</span></div>
+          <div class="sum-total"><span>Total</span><span style="color:var(--brand)">${fmt(total)}</span></div>
+        </div>
+
+        <button onclick="placeOrder()" style="background:var(--brand);color:#fff;border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;justify-content:space-between">
+          <span>Place Order</span><span>${fmt(total)}</span>
+        </button>
+        <div style="height:10px"></div>
+      </div>
+    </div>`;
+}
+
+// ── TRACKING ─────────────────────────────────────────────────
+function trackingScreen(){
+  const ct = cartTotal()||14500; const total = ct + 1000;
+  const steps = [
+    {icon:'✓',label:'Order confirmed',note:'Payment received, restaurant notified'},
+    {icon:'♨',label:'Preparing your food',note:'Restaurant is cooking your order'},
+    {icon:'🛵',label:'Rider on the way',note:'Your rider has picked up the order'},
+    {icon:'★',label:'Delivered!',note:'Enjoy your meal!'},
+  ];
+  return `
+    <div class="hdr"><h1>Track Order</h1><div style="display:flex;align-items:center;gap:6px"><div class="live-pip"></div><span style="color:#888;font-size:11px">Live</span></div></div>
+    <div class="track-screen">
+      <div class="track-status">
+        <div class="track-icon">${S.trackStep>=4?'🎉':'🛵'}</div>
+        <div class="track-title">${S.trackStep>=4?'Delivered!':'On its way!'}</div>
+        <div class="track-sub">From ${S.selRest?.name||'Inganzo'} to your door</div>
+        <div class="track-num">VK-2025-01046</div>
+      </div>
+      ${S.trackStep<4?`<div class="eta-bar">
+        <div><div class="eta-lbl">Estimated arrival</div><div class="eta-val">${S.trackStep===1?'~35 min':S.trackStep===2?'~25 min':'~12 min'}</div></div>
+        <div style="text-align:right"><div class="eta-lbl">Payment</div><div style="font-size:13px;font-weight:700;color:#27a060">${S.payMethod==='cash'?'Cash on delivery':'Paid ✓'}</div></div>
+      </div>`:''}
+      <div class="steps">
+        ${steps.map((s,i)=>`
+          <div class="step ${i<S.trackStep?'done':''}">
+            <div class="step-dot ${i<S.trackStep?'done':i===S.trackStep-1&&S.trackStep>i?'active':''}">${i<S.trackStep?'✓':i+1}</div>
+            <div class="step-body">
+              <div class="step-label ${i<S.trackStep?'done':''}">${s.label}</div>
+              <div class="step-note">${s.note}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="order-detail-card" style="margin-top:20px">
+        <div class="odc-title">Order summary</div>
+        ${(S.cart.length?S.cart:[{name:'Hearty Inganzo Breakfast',qty:1,price:12000},{name:'Grilled T-Bone Steak',qty:1,price:16000}]).map(i=>`
+          <div class="odc-row"><span class="odc-key">${i.name} ×${i.qty}</span><span class="odc-val">${fmt(i.price*i.qty)}</span></div>`).join('')}
+        <div class="odc-row"><span class="odc-key">Delivery fee</span><span class="odc-val" style="color:#27a060">1,000 RWF</span></div>
+        <div class="odc-row" style="border-top:1px solid var(--gray2);padding-top:8px;margin-top:4px"><span class="odc-key" style="font-weight:700;color:var(--text)">Total</span><span class="odc-val" style="color:var(--brand)">${fmt(total)}</span></div>
+      </div>
+      <button class="reorder-btn" onclick="S.cart=[];S.trackStep=1;if(S.trackTimer)clearInterval(S.trackTimer);go('home')">Back to home</button>
+    </div>`;
+}
+
+// ── MERCHANT ─────────────────────────────────────────────────
+function merchantScreen(){
+  const statusFlow = {pending:'confirmed',confirmed:'preparing',preparing:'ready',ready:'in_transit'};
+  const nextLabel  = {pending:'Confirm',confirmed:'Start Cooking',preparing:'Mark Ready',ready:'Dispatch'};
+  const badgeCls   = {pending:'b-pending',confirmed:'b-confirmed',preparing:'b-preparing',ready:'b-ready',in_transit:'b-transit',delivered:'b-delivered'};
+  const badgeLbl   = {pending:'Pending',confirmed:'Confirmed',preparing:'Preparing',ready:'Ready',in_transit:'In Transit',delivered:'Delivered'};
+
+  const activeOrders = S.merchantOrders.filter(o=>o.status!=='delivered');
+  const todayRev = S.merchantOrders.reduce((s,o)=>s+o.total,0);
+
+  return `
+    <div class="merch-hdr">
+      <div><h1>Inganzo</h1><div class="sub">Merchant dashboard</div></div>
+      <div class="toggle-wrap">
+        <span class="tog-lbl" style="color:${S.merchantOpen?'#27a060':'#e24b4a'}">${S.merchantOpen?'OPEN':'CLOSED'}</span>
+        <div class="tog ${S.merchantOpen?'on':''}" onclick="S.merchantOpen=!S.merchantOpen;render()"><div class="tog-knob"></div></div>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val">${activeOrders.length}</div><div class="stat-lbl">Active orders</div></div>
+      <div class="stat-card"><div class="stat-val">${(todayRev/1000).toFixed(0)}K</div><div class="stat-lbl">Revenue (RWF)</div></div>
+      <div class="stat-card"><div class="stat-val">★ 4.9</div><div class="stat-lbl">Rating</div></div>
+    </div>
+    <div class="tab-row">
+      <button class="tab ${S.merchantTab==='orders'?'on':'off'}" onclick="S.merchantTab='orders';render()">Orders (${activeOrders.length})</button>
+      <button class="tab ${S.merchantTab==='menu'?'on':'off'}" onclick="S.merchantTab='menu';render()">Menu</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding-bottom:16px">
+    ${S.merchantTab==='orders'?
+      (S.merchantOrders.length===0?`<div style="padding:40px 20px;text-align:center;color:var(--gray3);font-size:13px">No active orders</div>`:
+      S.merchantOrders.map((o,i)=>`
+        <div class="order-card">
+          <div class="oc-head">
+            <div><div class="oc-num">${o.id}</div><div class="oc-meta">${o.cust} · ${o.time}</div></div>
+            <span class="badge ${badgeCls[o.status]||'b-pending'}">${badgeLbl[o.status]}</span>
+          </div>
+          <div class="oc-items">${o.items.join(', ')}</div>
+          <div class="oc-foot">
+            <span class="oc-total">${fmt(o.total)}</span>
+            ${statusFlow[o.status]?`<button class="adv-btn" onclick="advanceMerchOrder(${i})">→ ${nextLabel[o.status]}</button>`:
+            `<span style="font-size:11px;color:var(--gray3)">Complete</span>`}
+          </div>
+        </div>`).join(''))
+    :RESTS.find(r=>r.id==='inganzo').items.map(item=>`
+        <div class="menu-item-row">
+          <div><div class="mir-name">${item.n}</div><div class="mir-price">${fmt(item.p)}</div></div>
+          <button class="mir-edit">Edit</button>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────
+function adminScreen(){
+  const badgeCls = {pending:'b-pending',confirmed:'b-confirmed',preparing:'b-preparing',ready:'b-ready',in_transit:'b-transit',delivered:'b-delivered',cancelled:'b-pending'};
+  const badgeLbl = {pending:'Pending',confirmed:'Confirmed',preparing:'Preparing',ready:'Ready',in_transit:'In Transit',delivered:'Delivered',cancelled:'Cancelled'};
+  const activeOrders = S.orders.filter(o=>!['delivered','cancelled'].includes(o.status)).length;
+  const todayRev = S.orders.reduce((s,o)=>s+o.total,0);
+
+  return `<div class="adm">
+    <div class="adm-hdr">
+      <div><h1>⚡ Ops Center</h1><div class="sub">Live · Kigali · ${new Date().toLocaleTimeString('en-RW',{hour:'2-digit',minute:'2-digit'})}</div></div>
+      <div class="live-pip"></div>
+    </div>
+    <div class="adm-stats">
+      <div class="adm-stat" style="background:#D85A3015;border-color:#D85A3040">
+        <div class="al" style="color:#D85A30">Active orders</div>
+        <div class="av" style="color:#D85A30">${activeOrders}</div>
+        <div class="ad" style="color:#27a060">+4 vs yesterday</div>
+      </div>
+      <div class="adm-stat" style="background:#27a06015;border-color:#27a06040">
+        <div class="al" style="color:#27a060">Merchants online</div>
+        <div class="av" style="color:#27a060">18</div>
+        <div class="ad" style="color:#27a060">All active</div>
+      </div>
+      <div class="adm-stat" style="background:#2563eb15;border-color:#2563eb40">
+        <div class="al" style="color:#2563eb">Riders online</div>
+        <div class="av" style="color:#2563eb">5</div>
+        <div class="ad" style="color:#27a060">Avg 10.4 deliveries</div>
+      </div>
+      <div class="adm-stat" style="background:#7c3aed15;border-color:#7c3aed40">
+        <div class="al" style="color:#9f7aea">Revenue today</div>
+        <div class="av" style="color:#9f7aea">${(todayRev/1000).toFixed(0)}K</div>
+        <div class="ad" style="color:#27a060">+22% this week</div>
+      </div>
+    </div>
+    <div class="adm-tabs">
+      ${['overview','orders','riders','merchants'].map(t=>`
+        <button class="adm-tab ${S.adminTab===t?'on':'off'}" onclick="S.adminTab='${t}';render()">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('')}
+    </div>
+    <div class="adm-list">
+    ${S.adminTab==='overview'?`
+      <div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.5px;padding:8px 0 6px;font-weight:700">Live orders</div>
+      ${S.orders.slice(0,4).map(o=>`
+        <div class="adm-card">
+          <div style="display:flex;justify-content:space-between;align-items:start">
+            <span class="an">${o.id}</span>
+            <span class="badge ${badgeCls[o.status]||'b-pending'}">${badgeLbl[o.status]}</span>
+          </div>
+          <div class="as">${o.cust} · ${o.addr}</div>
+          <div class="at">${fmt(o.total)}</div>
+        </div>`).join('')}`
+    :S.adminTab==='orders'?S.orders.map(o=>`
+        <div class="adm-card">
+          <div style="display:flex;justify-content:space-between">
+            <span class="an">${o.id}</span>
+            <span class="badge ${badgeCls[o.status]||'b-pending'}">${badgeLbl[o.status]}</span>
+          </div>
+          <div class="as">${o.cust} · ${o.time}</div>
+          <div class="as" style="margin-top:2px">${o.items.join(', ')}</div>
+          <div class="at">${fmt(o.total)}</div>
+        </div>`).join('')
+    :S.adminTab==='riders'?RIDERS.map(r=>`
+        <div class="adm-card">
+          <div class="rider-row">
+            <div style="display:flex;gap:10px;align-items:center">
+              <div class="rider-av">${r.name.split(' ').map(x=>x[0]).join('')}</div>
+              <div class="rider-info">
+                <div class="rn">${r.name}</div>
+                <div class="rm">${r.id} · ${r.orders} deliveries today · ★ ${r.rating}</div>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div class="${r.online?'r-online':'r-offline'}">${r.online?'ONLINE':'OFFLINE'}</div>
+              <div style="font-size:10px;color:#555;margin-top:2px">${r.city}</div>
+            </div>
+          </div>
+        </div>`).join('')
+    :RESTS.map(r=>`
+        <div class="adm-card">
+          <div class="merch-row">
+            <div class="merch-info">
+              <div class="mn">${r.name}</div>
+              <div class="mm">${r.cat} · ★ ${r.r} · ${r.t}m</div>
+            </div>
+            <div style="text-align:right">
+              <div class="${r.open?'m-open':'m-closed'}">${r.open?'OPEN':'CLOSED'}</div>
+              <div style="font-size:10px;color:#555;margin-top:3px">1,000 RWF fee</div>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────
+function addItem(name, desc, price){
+  const e = S.cart.find(i=>i.name===name);
+  if(e){ e.qty++; } else { S.cart.push({name,desc,price,qty:1}); }
+  render();
+}
+function removeItem(name){
+  const idx = S.cart.findIndex(i=>i.name===name);
+  if(idx===-1) return;
+  if(S.cart[idx].qty>1){ S.cart[idx].qty--; } else { S.cart.splice(idx,1); }
+  render();
+}
+function placeOrder(){
+  S.cart=[];
+  S.trackStep=1;
+  if(S.trackTimer) clearInterval(S.trackTimer);
+  S.screen='tracking';
+  render();
+  S.trackTimer = setInterval(()=>{
+    S.trackStep++;
+    render();
+    if(S.trackStep>=4) clearInterval(S.trackTimer);
+  }, 2200);
+}
+function advanceMerchOrder(idx){
+  const flow = {pending:'confirmed',confirmed:'preparing',preparing:'ready',ready:'in_transit'};
+  const cur = S.merchantOrders[idx].status;
+  if(flow[cur]){ S.merchantOrders[idx].status=flow[cur]; render(); }
+}
+
+render();
+</script>
+</body>
+</html>
