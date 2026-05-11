@@ -37,11 +37,6 @@ export default function HomePage() {
   const [cart, setCart] = useState<CartItem[]>([])
   const [search, setSearch] = useState('')
   const [searchActive, setSearchActive] = useState(false)
-  const [isPrime, setIsPrime] = useState(false)
-  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'confirm' | 'success'>('cart')
-  const [moreSubScreen, setMoreSubScreen] = useState<null | 'account' | 'addresses' | 'payment' | 'help' | 'terms'>('null' as any)
-  const [merchantSubScreen, setMerchantSubScreen] = useState<null | 'menu' | 'orders' | 'analytics' | 'settings'>(null)
-  const [adminSubScreen, setAdminSubScreen] = useState<null | 'restaurants' | 'drivers' | 'users' | 'analytics' | 'payments'>(null)
   const supabase = createClient()
 
   useEffect(() => {
@@ -54,7 +49,7 @@ export default function HomePage() {
       .then(({ data }) => {
         if (data) {
           setMerchants(data)
-          setCategories(['All', ...new Set(data.map((m: Merchant) => m.category))])
+          setCategories(['All', ...Array.from(new Set(data.map((m: Merchant) => m.category)))])
         }
       })
     const t = setInterval(() => setBanner(b => (b + 1) % BANNERS.length), 3000)
@@ -76,7 +71,7 @@ export default function HomePage() {
   const PanelSwitcher = () => (
     <div style={{ background: '#000', borderBottom: '1px solid #1a1a1a', display: 'flex', justifyContent: 'center', padding: '6px 14px', gap: 6 }}>
       {PANEL_TABS.map(p => (
-        <button key={p.id} onClick={() => { setPanel(p.id as any); setMerchantSubScreen(null); setAdminSubScreen(null); setMoreSubScreen(null as any) }}
+        <button key={p.id} onClick={() => setPanel(p.id as any)}
           style={{
             padding: '5px 16px', borderRadius: 20, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             fontSize: 11, fontWeight: 600,
@@ -105,7 +100,7 @@ export default function HomePage() {
           <div key={t.id}
             onClick={() => {
               if (t.id === 'home') { setScreen('home'); setSelectedMerchant(null) }
-              else { setScreen(t.id as any); if (t.id === 'cart') setCheckoutStep('cart') }
+              else setScreen(t.id as any)
             }}
             style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 4px 6px', cursor: 'pointer', gap: 2, position: 'relative' }}>
             {t.id === 'cart' && cartCount > 0 && (
@@ -123,96 +118,6 @@ export default function HomePage() {
 
   // ─── Merchant Panel ──────────────────────────────────────────────────────
   if (panel === 'merchant') {
-    if (merchantSubScreen) {
-      const titles: Record<string, string> = {
-        menu: '🍽️ My Menu', orders: '📦 Live Orders', analytics: '📊 Analytics', settings: '⚙️ Settings'
-      }
-      const content: Record<string, React.ReactNode> = {
-        menu: (
-          <div>
-            {[
-              { name: 'Brochette (10 pcs)', price: '3,500 RWF', available: true },
-              { name: 'Isombe + Ugali', price: '2,200 RWF', available: true },
-              { name: 'Grilled Tilapia', price: '4,800 RWF', available: false },
-            ].map(item => (
-              <div key={item.name} style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, border: '0.5px solid #2a2a2a' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{item.name}</div>
-                  <div style={{ color: '#D85A30', fontSize: 12, fontWeight: 700, marginTop: 2 }}>{item.price}</div>
-                </div>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: item.available ? '#22c55e' : '#555' }} />
-              </div>
-            ))}
-            <button style={{ width: '100%', background: '#1a1a1a', color: '#D85A30', border: '0.5px dashed #D85A30', borderRadius: 12, padding: '14px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', marginTop: 4 }}>
-              + Add Menu Item
-            </button>
-          </div>
-        ),
-        orders: (
-          <div>
-            {[
-              { id: '#1042', items: 'Brochette × 2, Fanta', total: '8,000 RWF', status: 'New', color: '#D85A30' },
-              { id: '#1041', items: 'Isombe + Ugali × 1', total: '3,200 RWF', status: 'Preparing', color: '#f59e0b' },
-              { id: '#1040', items: 'Grilled Tilapia × 1', total: '5,800 RWF', status: 'Ready', color: '#22c55e' },
-            ].map(order => (
-              <div key={order.id} style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, border: '0.5px solid #2a2a2a' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ fontWeight: 700, fontSize: 13 }}>{order.id}</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: order.color }}>{order.status}</div>
-                </div>
-                <div style={{ fontSize: 11, color: '#888' }}>{order.items}</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#D85A30', marginTop: 6 }}>{order.total}</div>
-              </div>
-            ))}
-          </div>
-        ),
-        analytics: (
-          <div>
-            {[
-              { label: 'Orders Today', value: '23', icon: '📦', color: '#D85A30' },
-              { label: 'Revenue Today', value: '84,600 RWF', icon: '💰', color: '#22c55e' },
-              { label: 'Avg Rating', value: '4.7 ★', icon: '⭐', color: '#f59e0b' },
-              { label: 'Avg Prep Time', value: '18 min', icon: '⏱', color: '#3b82f6' },
-            ].map(stat => (
-              <div key={stat.label} style={{ background: '#1a1a1a', borderRadius: 12, padding: '16px 14px', marginBottom: 10, border: '0.5px solid #2a2a2a', display: 'flex', alignItems: 'center', gap: 14 }}>
-                <span style={{ fontSize: 26 }}>{stat.icon}</span>
-                <div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: stat.color }}>{stat.value}</div>
-                  <div style={{ fontSize: 10, color: '#555', marginTop: 2 }}>{stat.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ),
-        settings: (
-          <div>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 11, color: '#555', fontWeight: 700, marginBottom: 8 }}>OPENING HOURS</div>
-              <div style={{ fontSize: 13 }}>Mon – Sun: 10:00 – 22:00</div>
-            </div>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 11, color: '#555', fontWeight: 700, marginBottom: 8 }}>DELIVERY ZONE</div>
-              <div style={{ fontSize: 13 }}>Kigali — all districts</div>
-            </div>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 11, color: '#555', fontWeight: 700, marginBottom: 8 }}>PAYOUT METHOD</div>
-              <div style={{ fontSize: 13 }}>MTN MoMo Business</div>
-            </div>
-          </div>
-        ),
-      }
-      return (
-        <div style={{ ...ff, background: '#0f0f0f', minHeight: '100vh', color: '#fff' }}>
-          <PanelSwitcher />
-          <div style={{ background: '#111', padding: '14px 16px', position: 'sticky', top: 36, zIndex: 50, borderBottom: '0.5px solid #2a2a2a', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button onClick={() => setMerchantSubScreen(null)} style={{ background: 'none', border: 'none', color: '#D85A30', fontSize: 22, cursor: 'pointer', fontFamily: 'inherit' }}>←</button>
-            <div style={{ color: '#fff', fontSize: 16, fontWeight: 700 }}>{titles[merchantSubScreen]}</div>
-          </div>
-          <div style={{ padding: '16px 14px' }}>{content[merchantSubScreen]}</div>
-        </div>
-      )
-    }
-
     return (
       <div style={{ ...ff, background: '#0f0f0f', minHeight: '100vh', color: '#fff' }}>
         <PanelSwitcher />
@@ -221,18 +126,17 @@ export default function HomePage() {
           <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Merchant Dashboard</div>
           <div style={{ color: '#555', fontSize: 13, marginBottom: 30 }}>Manage your restaurant, menu, and orders</div>
           {[
-            { icon: '🍽️', label: 'My Menu', desc: 'Add and edit menu items', key: 'menu' },
-            { icon: '📦', label: 'Live Orders', desc: 'View and manage incoming orders', key: 'orders' },
-            { icon: '📊', label: 'Analytics', desc: 'Sales, ratings and insights', key: 'analytics' },
-            { icon: '⚙️', label: 'Settings', desc: 'Hours, delivery zones, payments', key: 'settings' },
+            { icon: '🍽️', label: 'My Menu', desc: 'Add and edit menu items' },
+            { icon: '📦', label: 'Live Orders', desc: 'View and manage incoming orders' },
+            { icon: '📊', label: 'Analytics', desc: 'Sales, ratings and insights' },
+            { icon: '⚙️', label: 'Settings', desc: 'Hours, delivery zones, payments' },
           ].map(item => (
-            <div key={item.label} onClick={() => setMerchantSubScreen(item.key as any)} style={{ background: '#1a1a1a', borderRadius: 12, padding: '16px 18px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 14, border: '0.5px solid #2a2a2a', cursor: 'pointer' }}>
+            <div key={item.label} style={{ background: '#1a1a1a', borderRadius: 12, padding: '16px 18px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 14, border: '0.5px solid #2a2a2a', cursor: 'pointer' }}>
               <span style={{ fontSize: 24 }}>{item.icon}</span>
               <div style={{ textAlign: 'left' }}>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{item.label}</div>
                 <div style={{ color: '#555', fontSize: 11, marginTop: 2 }}>{item.desc}</div>
               </div>
-              <span style={{ marginLeft: 'auto', color: '#555', fontSize: 16 }}>›</span>
             </div>
           ))}
           <div style={{ marginTop: 20, background: '#1a1a1a', borderRadius: 12, padding: 16, border: '0.5px solid #2a2a2a' }}>
@@ -249,100 +153,6 @@ export default function HomePage() {
 
   // ─── Admin Panel ─────────────────────────────────────────────────────────
   if (panel === 'admin') {
-    if (adminSubScreen) {
-      const titles: Record<string, string> = {
-        restaurants: '🏪 Manage Restaurants', drivers: '🛵 Driver Management',
-        users: '👤 Users & Accounts', analytics: '📊 Platform Analytics', payments: '💳 Payments & Payouts'
-      }
-      const content: Record<string, React.ReactNode> = {
-        restaurants: (
-          <div>
-            {merchants.slice(0, 5).map(m => (
-              <div key={m.id} style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, border: '0.5px solid #2a2a2a' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{m.name}</div>
-                  <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{m.category} · ★ {m.rating}</div>
-                </div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: m.is_open ? '#22c55e' : '#555' }}>{m.is_open ? 'OPEN' : 'CLOSED'}</div>
-              </div>
-            ))}
-          </div>
-        ),
-        drivers: (
-          <div>
-            {[
-              { name: 'Jean-Pierre M.', status: 'Delivering', orders: 8 },
-              { name: 'Claudine U.', status: 'Online', orders: 5 },
-              { name: 'Patrick N.', status: 'Offline', orders: 0 },
-            ].map(d => (
-              <div key={d.name} style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, border: '0.5px solid #2a2a2a' }}>
-                <span style={{ fontSize: 22 }}>🛵</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{d.name}</div>
-                  <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{d.orders} orders today</div>
-                </div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: d.status === 'Delivering' ? '#D85A30' : d.status === 'Online' ? '#22c55e' : '#555' }}>{d.status.toUpperCase()}</div>
-              </div>
-            ))}
-          </div>
-        ),
-        analytics: (
-          <div>
-            {[
-              { label: 'Total Orders Today', value: '142', icon: '📦', color: '#D85A30' },
-              { label: 'Platform Revenue', value: '512,000 RWF', icon: '💰', color: '#22c55e' },
-              { label: 'Active Customers', value: '89', icon: '👤', color: '#3b82f6' },
-              { label: 'Driver Utilization', value: '76%', icon: '🛵', color: '#f59e0b' },
-            ].map(stat => (
-              <div key={stat.label} style={{ background: '#1a1a1a', borderRadius: 12, padding: '16px 14px', marginBottom: 10, border: '0.5px solid #2a2a2a', display: 'flex', alignItems: 'center', gap: 14 }}>
-                <span style={{ fontSize: 26 }}>{stat.icon}</span>
-                <div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: stat.color }}>{stat.value}</div>
-                  <div style={{ fontSize: 10, color: '#555', marginTop: 2 }}>{stat.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ),
-        users: (
-          <div>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 11, color: '#555', fontWeight: 700, marginBottom: 8 }}>TOTAL USERS</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: '#3b82f6' }}>1,247</div>
-            </div>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 11, color: '#555', fontWeight: 700, marginBottom: 8 }}>PRIME MEMBERS</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: '#D85A30' }}>312</div>
-            </div>
-          </div>
-        ),
-        payments: (
-          <div>
-            {[
-              { label: 'Pending Payouts', value: '8 merchants', amount: '1,240,000 RWF', color: '#f59e0b' },
-              { label: 'Processed Today', value: '14 payouts', amount: '3,180,000 RWF', color: '#22c55e' },
-            ].map(p => (
-              <div key={p.label} style={{ background: '#1a1a1a', borderRadius: 12, padding: '16px', marginBottom: 10, border: '0.5px solid #2a2a2a' }}>
-                <div style={{ fontSize: 11, color: '#555', fontWeight: 700, marginBottom: 6 }}>{p.label.toUpperCase()}</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: p.color }}>{p.amount}</div>
-                <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{p.value}</div>
-              </div>
-            ))}
-          </div>
-        ),
-      }
-      return (
-        <div style={{ ...ff, background: '#0f0f0f', minHeight: '100vh', color: '#fff' }}>
-          <PanelSwitcher />
-          <div style={{ background: '#111', padding: '14px 16px', position: 'sticky', top: 36, zIndex: 50, borderBottom: '0.5px solid #2a2a2a', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button onClick={() => setAdminSubScreen(null)} style={{ background: 'none', border: 'none', color: '#D85A30', fontSize: 22, cursor: 'pointer', fontFamily: 'inherit' }}>←</button>
-            <div style={{ color: '#fff', fontSize: 16, fontWeight: 700 }}>{titles[adminSubScreen]}</div>
-          </div>
-          <div style={{ padding: '16px 14px' }}>{content[adminSubScreen]}</div>
-        </div>
-      )
-    }
-
     return (
       <div style={{ ...ff, background: '#0f0f0f', minHeight: '100vh', color: '#fff' }}>
         <PanelSwitcher />
@@ -367,16 +177,16 @@ export default function HomePage() {
             ))}
           </div>
           {[
-            { icon: '🏪', label: 'Manage Restaurants', key: 'restaurants' },
-            { icon: '🛵', label: 'Driver Management', key: 'drivers' },
-            { icon: '👤', label: 'Users & Accounts', key: 'users' },
-            { icon: '📊', label: 'Platform Analytics', key: 'analytics' },
-            { icon: '💳', label: 'Payments & Payouts', key: 'payments' },
+            { icon: '🏪', label: 'Manage Restaurants' },
+            { icon: '🛵', label: 'Driver Management' },
+            { icon: '👤', label: 'Users & Accounts' },
+            { icon: '📊', label: 'Platform Analytics' },
+            { icon: '💳', label: 'Payments & Payouts' },
           ].map(item => (
-            <div key={item.label} onClick={() => setAdminSubScreen(item.key as any)} style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12, border: '0.5px solid #2a2a2a', cursor: 'pointer' }}>
+            <div key={item.label} style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12, border: '0.5px solid #2a2a2a', cursor: 'pointer' }}>
               <span style={{ fontSize: 20 }}>{item.icon}</span>
               <span style={{ fontWeight: 600, fontSize: 13 }}>{item.label}</span>
-              <span style={{ marginLeft: 'auto', color: '#555', fontSize: 16 }}>›</span>
+              <span style={{ marginLeft: 'auto', color: '#333', fontSize: 16 }}>›</span>
             </div>
           ))}
         </div>
@@ -394,7 +204,6 @@ export default function HomePage() {
           cart={cart}
           setCart={setCart}
           onBack={() => { setScreen('home'); setSelectedMerchant(null) }}
-          onViewCart={() => setScreen('cart')}
         />
         <BottomNav />
       </div>
@@ -403,96 +212,10 @@ export default function HomePage() {
 
   // ─── Cart Screen ──────────────────────────────────────────────────────────
   if (screen === 'cart') {
-    // Order success screen
-    if (checkoutStep === 'success') {
-      return (
-        <div style={{ ...ff, background: '#0f0f0f', minHeight: '100vh', color: '#fff', paddingBottom: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 20px' }}>
-          <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
-          <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>Order Placed!</div>
-          <div style={{ color: '#888', fontSize: 13, marginBottom: 6 }}>Payment via MTN MoMo / Airtel</div>
-          <div style={{ color: '#22c55e', fontSize: 13, fontWeight: 600, marginBottom: 30 }}>Estimated delivery: 25–40 min</div>
-          <div style={{ background: '#1a1a1a', borderRadius: 16, padding: '16px 20px', width: '100%', maxWidth: 320, marginBottom: 24, border: '0.5px solid #2a2a2a' }}>
-            <div style={{ color: '#555', fontSize: 10, fontWeight: 700, marginBottom: 8 }}>ORDER TOTAL</div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#D85A30' }}>{(cartTotal + (isPrime ? 0 : 1000)).toLocaleString()} RWF</div>
-            {isPrime && <div style={{ color: '#22c55e', fontSize: 10, marginTop: 4 }}>✓ Prime — Free delivery applied</div>}
-          </div>
-          <button onClick={() => { setCart([]); setCheckoutStep('cart'); setScreen('orders') }}
-            style={{ width: '100%', maxWidth: 320, background: '#D85A30', color: '#fff', border: 'none', borderRadius: 12, padding: '14px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-            Track Order
-          </button>
-          <button onClick={() => { setCart([]); setCheckoutStep('cart'); setScreen('home') }}
-            style={{ marginTop: 10, width: '100%', maxWidth: 320, background: '#1a1a1a', color: '#fff', border: '0.5px solid #2a2a2a', borderRadius: 12, padding: '14px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-            Back to Home
-          </button>
-        </div>
-      )
-    }
-
-    // Confirm / payment step
-    if (checkoutStep === 'confirm') {
-      return (
-        <div style={{ ...ff, background: '#0f0f0f', minHeight: '100vh', color: '#fff', paddingBottom: 80 }}>
-          <PanelSwitcher />
-          <div style={{ background: '#111', padding: '14px 16px', position: 'sticky', top: 36, zIndex: 50, borderBottom: '0.5px solid #2a2a2a', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button onClick={() => setCheckoutStep('cart')} style={{ background: 'none', border: 'none', color: '#D85A30', fontSize: 22, cursor: 'pointer', fontFamily: 'inherit' }}>←</button>
-            <div style={{ color: '#fff', fontSize: 17, fontWeight: 700 }}>Confirm Order</div>
-          </div>
-          <div style={{ padding: '16px 14px' }}>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 12, border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 11, color: '#555', fontWeight: 700, marginBottom: 10 }}>DELIVERY ADDRESS</div>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>📍 Kigali, Rwanda</div>
-              <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>Add a specific address to save time</div>
-            </div>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 12, border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 11, color: '#555', fontWeight: 700, marginBottom: 10 }}>PAYMENT METHOD</div>
-              {[
-                { icon: '📱', label: 'MTN MoMo', desc: 'Mobile Money' },
-                { icon: '📲', label: 'Airtel Money', desc: 'Airtel Rwanda' },
-                { icon: '💵', label: 'Cash on Delivery', desc: 'Pay when delivered' },
-              ].map((method, i) => (
-                <div key={method.label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < 2 ? '0.5px solid #222' : 'none' }}>
-                  <span style={{ fontSize: 20 }}>{method.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{method.label}</div>
-                    <div style={{ fontSize: 10, color: '#555' }}>{method.desc}</div>
-                  </div>
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid', borderColor: i === 0 ? '#D85A30' : '#333', background: i === 0 ? '#D85A30' : 'none' }} />
-                </div>
-              ))}
-            </div>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 20, border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Order Summary</div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#888', marginBottom: 6 }}>
-                <span>Subtotal</span><span>{cartTotal.toLocaleString()} RWF</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
-                <span style={{ color: '#888' }}>Delivery fee</span>
-                {isPrime
-                  ? <span style={{ color: '#22c55e', fontWeight: 600 }}>FREE (Prime) 🎉</span>
-                  : <span style={{ color: '#888' }}>1,000 RWF</span>}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#22c55e', fontWeight: 600, marginBottom: 8 }}>
-                <span>Container charge</span><span>0 RWF ✓</span>
-              </div>
-              <div style={{ borderTop: '0.5px solid #2a2a2a', paddingTop: 10, display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 800 }}>
-                <span>Total</span><span style={{ color: '#D85A30' }}>{(cartTotal + (isPrime ? 0 : 1000)).toLocaleString()} RWF</span>
-              </div>
-            </div>
-            <button onClick={() => setCheckoutStep('success')}
-              style={{ width: '100%', background: '#D85A30', color: '#fff', border: 'none', borderRadius: 12, padding: '15px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-              Confirm &amp; Pay · {(cartTotal + (isPrime ? 0 : 1000)).toLocaleString()} RWF
-            </button>
-          </div>
-          <BottomNav />
-        </div>
-      )
-    }
-
-    // Default cart view
     return (
       <div style={{ ...ff, background: '#0f0f0f', minHeight: '100vh', color: '#fff', paddingBottom: 80 }}>
         <PanelSwitcher />
-        <div style={{ background: '#111', padding: '14px 16px', position: 'sticky', top: 36, zIndex: 50, borderBottom: '0.5px solid #2a2a2a' }}>
+        <div style={{ background: '#111', padding: '14px 16px', position: 'sticky', top: 0, zIndex: 50, borderBottom: '0.5px solid #2a2a2a' }}>
           <div style={{ color: '#fff', fontSize: 17, fontWeight: 700 }}>🛒 Your Cart</div>
         </div>
         {cart.length === 0 ? (
@@ -543,23 +266,19 @@ export default function HomePage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#888', marginBottom: 6 }}>
                 <span>Subtotal</span><span>{cartTotal.toLocaleString()} RWF</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
-                <span style={{ color: '#888' }}>Delivery fee</span>
-                {isPrime
-                  ? <span style={{ color: '#22c55e', fontWeight: 600 }}>FREE (Prime) 🎉</span>
-                  : <span style={{ color: '#888' }}>1,000 RWF</span>}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#888', marginBottom: 6 }}>
+                <span>Delivery fee</span><span style={{ color: '#22c55e' }}>1,000 RWF</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#22c55e', fontWeight: 600, marginBottom: 8 }}>
                 <span>Container charge</span><span>0 RWF ✓</span>
               </div>
               <div style={{ borderTop: '0.5px solid #2a2a2a', paddingTop: 10, display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800 }}>
-                <span>Total</span><span style={{ color: '#D85A30' }}>{(cartTotal + (isPrime ? 0 : 1000)).toLocaleString()} RWF</span>
+                <span>Total</span><span style={{ color: '#D85A30' }}>{(cartTotal + 1000).toLocaleString()} RWF</span>
               </div>
             </div>
 
-            <button onClick={() => setCheckoutStep('confirm')}
-              style={{ width: '100%', background: '#D85A30', color: '#fff', border: 'none', borderRadius: 12, padding: '15px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-              Proceed to Checkout · {(cartTotal + (isPrime ? 0 : 1000)).toLocaleString()} RWF
+            <button style={{ width: '100%', background: '#D85A30', color: '#fff', border: 'none', borderRadius: 12, padding: '15px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              Place Order · MTN MoMo / Airtel
             </button>
           </div>
         )}
@@ -618,14 +337,9 @@ export default function HomePage() {
           <div style={{ background: '#1a1a1a', borderRadius: 16, padding: 20, marginTop: 10, textAlign: 'center', border: '0.5px solid #2a2a2a' }}>
             <div style={{ color: '#888', fontSize: 11, marginBottom: 4 }}>Monthly plan</div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#D85A30' }}>4,900 <span style={{ fontSize: 14, color: '#888' }}>RWF/mo</span></div>
-            <button onClick={() => setIsPrime(true)} style={{ marginTop: 16, width: '100%', background: isPrime ? '#22c55e' : '#D85A30', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-              {isPrime ? '✓ Prime Active — Enjoy free delivery!' : 'Start Prime · 4,900 RWF/mo'}
+            <button style={{ marginTop: 16, width: '100%', background: '#D85A30', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              Start Prime
             </button>
-            {isPrime && (
-              <div style={{ marginTop: 10, textAlign: 'center', color: '#22c55e', fontSize: 11, fontWeight: 600 }}>
-                ✓ You&apos;re a Prime member! Free delivery on every order.
-              </div>
-            )}
           </div>
         </div>
         <BottomNav />
@@ -635,129 +349,27 @@ export default function HomePage() {
 
   // ─── More Screen ──────────────────────────────────────────────────────────
   if (screen === 'more') {
-    if (moreSubScreen && moreSubScreen !== 'null' as any) {
-      const titles: Record<string, string> = {
-        account: '👤 My Account', addresses: '📍 Saved Addresses',
-        payment: '💳 Payment Methods', help: '🆘 Help & Support', terms: '📋 Terms & Privacy'
-      }
-      const content: Record<string, React.ReactNode> = {
-        account: (
-          <div>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: 16, marginBottom: 10, border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 11, color: '#555', fontWeight: 700, marginBottom: 8 }}>PROFILE</div>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>Kigali Customer</div>
-              <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>+250 7XX XXX XXX</div>
-            </div>
-            {isPrime && (
-              <div style={{ background: '#1a1a2e', borderRadius: 12, padding: 14, border: '0.5px solid #D85A30', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: 24 }}>◈</span>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: '#D85A30' }}>Prime Member</div>
-                  <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>Free delivery on every order</div>
-                </div>
-              </div>
-            )}
-          </div>
-        ),
-        addresses: (
-          <div>
-            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: 14, marginBottom: 10, border: '0.5px solid #2a2a2a' }}>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>📍 Kigali City Centre</div>
-              <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>Default · Nyarutarama, Kigali</div>
-            </div>
-            <button style={{ width: '100%', background: '#1a1a1a', color: '#D85A30', border: '0.5px dashed #D85A30', borderRadius: 12, padding: '14px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-              + Add New Address
-            </button>
-          </div>
-        ),
-        payment: (
-          <div>
-            {[
-              { icon: '📱', label: 'MTN MoMo', desc: '**** 1234', active: true },
-              { icon: '📲', label: 'Airtel Money', desc: '**** 5678', active: false },
-            ].map(m => (
-              <div key={m.label} style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, border: m.active ? '0.5px solid #D85A30' : '0.5px solid #2a2a2a' }}>
-                <span style={{ fontSize: 22 }}>{m.icon}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{m.label}</div>
-                  <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{m.desc}</div>
-                </div>
-                {m.active && <span style={{ fontSize: 10, color: '#D85A30', fontWeight: 700 }}>DEFAULT</span>}
-              </div>
-            ))}
-          </div>
-        ),
-        help: (
-          <div>
-            {[
-              { icon: '💬', label: 'Chat with Support', desc: 'Average response: 2 min' },
-              { icon: '📞', label: 'Call Us', desc: '+250 788 000 000' },
-              { icon: '❓', label: 'FAQs', desc: 'Common questions answered' },
-            ].map(item => (
-              <div key={item.label} style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, border: '0.5px solid #2a2a2a', cursor: 'pointer' }}>
-                <span style={{ fontSize: 22 }}>{item.icon}</span>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{item.label}</div>
-                  <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{item.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ),
-        terms: (
-          <div style={{ color: '#888', fontSize: 12, lineHeight: 1.7 }}>
-            <div style={{ fontWeight: 700, color: '#fff', fontSize: 13, marginBottom: 8 }}>Terms of Service</div>
-            <p>By using Vuka Deliver, you agree to our terms of service. Delivery times are estimates. Prices are set by merchants.</p>
-            <div style={{ fontWeight: 700, color: '#fff', fontSize: 13, margin: '16px 0 8px' }}>Privacy Policy</div>
-            <p>We collect only information necessary to fulfil your orders. Your data is never sold to third parties.</p>
-          </div>
-        ),
-      }
-      return (
-        <div style={{ ...ff, background: '#0f0f0f', minHeight: '100vh', color: '#fff', paddingBottom: 80 }}>
-          <PanelSwitcher />
-          <div style={{ background: '#111', padding: '14px 16px', position: 'sticky', top: 36, zIndex: 50, borderBottom: '0.5px solid #2a2a2a', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button onClick={() => setMoreSubScreen(null)} style={{ background: 'none', border: 'none', color: '#D85A30', fontSize: 22, cursor: 'pointer', fontFamily: 'inherit' }}>←</button>
-            <div style={{ color: '#fff', fontSize: 16, fontWeight: 700 }}>{titles[moreSubScreen]}</div>
-          </div>
-          <div style={{ padding: '16px 14px' }}>{content[moreSubScreen]}</div>
-          <BottomNav />
-        </div>
-      )
-    }
-
     return (
       <div style={{ ...ff, background: '#0f0f0f', minHeight: '100vh', color: '#fff', paddingBottom: 80 }}>
         <PanelSwitcher />
-        <div style={{ background: '#111', padding: '14px 16px', position: 'sticky', top: 36, zIndex: 50, borderBottom: '0.5px solid #2a2a2a' }}>
+        <div style={{ background: '#111', padding: '14px 16px', position: 'sticky', top: 0, zIndex: 50, borderBottom: '0.5px solid #2a2a2a' }}>
           <div style={{ color: '#fff', fontSize: 17, fontWeight: 700 }}>More</div>
         </div>
         <div style={{ padding: '16px 14px' }}>
           {[
-            { icon: '👤', label: 'My Account', key: 'account' },
-            { icon: '📍', label: 'Saved Addresses', key: 'addresses' },
-            { icon: '💳', label: 'Payment Methods', key: 'payment' },
-            { icon: '⭐', label: 'Rate the App', key: null },
-            { icon: '🆘', label: 'Help & Support', key: 'help' },
-            { icon: '📋', label: 'Terms & Privacy', key: 'terms' },
+            { icon: '👤', label: 'My Account' },
+            { icon: '📍', label: 'Saved Addresses' },
+            { icon: '💳', label: 'Payment Methods' },
+            { icon: '⭐', label: 'Rate the App' },
+            { icon: '🆘', label: 'Help & Support' },
+            { icon: '📋', label: 'Terms & Privacy' },
           ].map(item => (
-            <div key={item.label}
-              onClick={() => item.key ? setMoreSubScreen(item.key as any) : alert('Thank you for rating Vuka Deliver! ⭐⭐⭐⭐⭐')}
-              style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12, border: '0.5px solid #2a2a2a', cursor: 'pointer' }}>
+            <div key={item.label} style={{ background: '#1a1a1a', borderRadius: 12, padding: '14px 16px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12, border: '0.5px solid #2a2a2a', cursor: 'pointer' }}>
               <span style={{ fontSize: 20 }}>{item.icon}</span>
               <span style={{ fontWeight: 600, fontSize: 13 }}>{item.label}</span>
-              <span style={{ marginLeft: 'auto', color: '#555', fontSize: 16 }}>›</span>
+              <span style={{ marginLeft: 'auto', color: '#333', fontSize: 16 }}>›</span>
             </div>
           ))}
-          {isPrime && (
-            <div style={{ background: '#1a1a2e', borderRadius: 12, padding: '14px 16px', marginTop: 4, display: 'flex', alignItems: 'center', gap: 12, border: '0.5px solid #D85A30' }}>
-              <span style={{ fontSize: 20 }}>◈</span>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 13, color: '#D85A30' }}>Prime Active</div>
-                <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>Free delivery on every order</div>
-              </div>
-            </div>
-          )}
         </div>
         <BottomNav />
       </div>
@@ -901,13 +513,12 @@ export default function HomePage() {
 
 // ─── Merchant Menu Screen (standalone) ──────────────────────────────────────
 function MerchantMenuScreen({
-  merchant, cart, setCart, onBack, onViewCart
+  merchant, cart, setCart, onBack
 }: {
   merchant: Merchant
   cart: CartItem[]
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>
   onBack: () => void
-  onViewCart: () => void
 }) {
   const [items, setItems] = useState<any[]>([])
   const supabase = createClient()
@@ -1001,7 +612,7 @@ function MerchantMenuScreen({
       {/* Cart bar */}
       {cartCount > 0 && (
         <div style={{ position: 'fixed', bottom: 64, left: 0, right: 0, padding: '10px 14px', background: '#0f0f0f', borderTop: '0.5px solid #1a1a1a' }}>
-          <button onClick={onViewCart} style={{ width: '100%', background: '#D85A30', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', fontFamily: 'inherit' }}>
+          <button style={{ width: '100%', background: '#D85A30', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', fontFamily: 'inherit' }}>
             <span>🛒 {cartCount} items · View Cart</span>
             <span>{cartTotal.toLocaleString()} RWF</span>
           </button>
@@ -1010,3 +621,4 @@ function MerchantMenuScreen({
     </div>
   )
 }
+
