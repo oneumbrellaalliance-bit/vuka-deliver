@@ -2,26 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import MenuClient from './menu-client'
-
-interface Merchant {
-  id: string
-  owner_id: string | null
-  name: string
-  slug: string
-  description: string | null
-  category: string
-  city: string
-  address: string | null
-  phone: string | null
-  logo_url: string | null
-  rating: number
-  delivery_time_min: number
-  delivery_time_max: number
-  delivery_fee: number
-  is_open: boolean
-  is_active: boolean
-  created_at: string
-}
+import type { Merchant } from '@/lib/supabase/types'
 
 export default async function RestaurantPage({ params }: { params: { slug: string } }) {
   const supabase = createClient()
